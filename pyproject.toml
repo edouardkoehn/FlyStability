@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "template"#name of your module
+version = "0.0.1"#version of your module
+description = "Template for repo"#description of your modeél
+authors = ["Edouard Koehn"]
+license = "MIT License"
+
+# Main dependencies
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+
+# Dev dependencies
+[tool.poetry.dev-dependencies]
+jupyter = "^1.0.0"
+pytest = "^6.2.5"
+black = "^21.12b0"
+pre-commit = "^2.17.0"
+flake8 = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.venv
+  | \.env
+  | build
+  | dist
+  | \.mypy_cache
+)\
+'''
+# Scripts of your module
+[tool.poetry.scripts]
+#spectral_clustering = "clustering:spectral_clustering.spectral_clustering"
