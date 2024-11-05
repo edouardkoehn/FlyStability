@@ -1,15 +1,14 @@
 [tool.poetry]
-name = "template"#name of your module
+name = "FlyStability"#name of your module
 version = "0.0.1"#version of your module
-description = "Template for repo"#description of your modeél
+description = "Clean implementation of the Flybrain Stability project"#description of your modeél
 authors = ["Edouard Koehn"]
 license = "MIT License"
 
 # Main dependencies
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = ">=3.12,<=3.13"
 
-# Dev dependencies
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0.0"
 pytest = "^6.2.5"
