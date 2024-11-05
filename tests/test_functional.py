@@ -14,6 +14,7 @@ def test_tanh():
 
 
 def test_tanhpos():
+    assert functional.tanh_positive(torch.tensor(0)) == 0.5
     assert functional.tanh_positive(torch.tensor(0), 1, 0) == 0.5
     assert functional.tanh_positive(torch.tensor(10), 1, 0) == 1.0
     assert functional.tanh_positive(torch.tensor(-10), 1, 0) == 0.0
@@ -21,6 +22,7 @@ def test_tanhpos():
 
 
 def test_tanhstreched():
+    assert functional.tanh_strech(torch.tensor(0)) == 0.0
     assert functional.tanh_strech(torch.tensor(0), 1, 0) == 0.0
     assert functional.tanh_strech(torch.tensor(10), 1, 0) == 1.0
     assert functional.tanh_strech(torch.tensor(-10), 1, 0) == -1.0

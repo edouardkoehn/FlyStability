@@ -5,11 +5,11 @@ def tanh(x):
     return torch.tanh(x)
 
 
-def tanh_strech(x, gain, shift):
+def tanh_strech(x, gain=1.0, shift=0.0):
     return torch.tanh(gain * (x - shift))
 
 
-def tanh_positive(x, gain, shift):
+def tanh_positive(x, gain=1, shift=0.0):
     return 0.5 * (1 + torch.tanh(gain * (x - shift)))
 
 
