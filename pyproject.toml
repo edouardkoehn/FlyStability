@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "FlyStability"#name of your module
+name = "flybrain"#name of your module
 version = "0.0.1"#version of your module
 description = "Clean implementation of the Flybrain Stability project"#description of your modeél
 authors = ["Edouard Koehn"]
@@ -15,6 +15,9 @@ pytest = "^6.2.5"
 black = "^21.12b0"
 pre-commit = "^2.17.0"
 flake8 = "^4.0.1"
+
+[tool.poetry.group.dependencies.dependencies]
+torch = "^2.5.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
