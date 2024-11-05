@@ -4,6 +4,7 @@ import flybrain.qr as qr
 
 
 def test_QR():
+    "Test the QR implementation"
     A_our_implementation = torch.tensor(
         [[3, 0, 0], [0, 6, 0], [0, 0, 5]], dtype=float, requires_grad=True
     )  # Arbitrary-shaped matrix example
