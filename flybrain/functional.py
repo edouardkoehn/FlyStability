@@ -1,16 +1,36 @@
 import torch
 
 
-def tanh(x):
-    return torch.tanh(x)
+class functional:
+    def name(self):
+        raise NotImplementedError("Subclasses should implement this method.")
+
+    def call(self, spectrum, target_value):
+        raise NotImplementedError("Subclasses should implement this method.")
 
 
-def tanh_strech(x, gain=1.0, shift=0.0):
-    return torch.tanh(gain * (x - shift))
+class tanh(functional):
+    def name(self):
+        return "tanh"
+
+    def __call__(self, x):
+        return torch.tanh(x)
 
 
-def tanh_positive(x, gain=1, shift=0.0):
-    return 0.5 * (1 + torch.tanh(gain * (x - shift)))
+class tanh_strech(functional):
+    def name(self):
+        return "tanh_streched"
+
+    def __call__(self, x, gain=1, shift=0):
+        return torch.tanh(gain * (x - shift))
+
+
+class tanh_positive(functional):
+    def name(self):
+        return "tanh_positive"
+
+    def __call__(self, x, gain=1, shift=0):
+        return 0.5 * (1 + torch.tanh(gain * (x - shift)))
 
 
 class loss:
