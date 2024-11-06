@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+#Custom strucutre
+notebooks/*
+data/*
+!data/fig/.gitkeep
+!data/model/.gitkeep
+!data/logs/.gitkeep
 
 # Distribution / packaging
 .Python
@@ -14,7 +20,7 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-notebooks/*
+
 .eggs/
 lib/
 lib64/
