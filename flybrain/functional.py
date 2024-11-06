@@ -13,7 +13,7 @@ class tanh(functional):
     def name(self):
         return "tanh"
 
-    def __call__(self, x):
+    def __call__(self, x, gain=1, shift=0):
         return torch.tanh(x)
 
 
