@@ -122,7 +122,7 @@ class RNN:
             print(f"Initialization error: {e}")
             sys.exit()
 
-    def train(self, weight=True, shift=False, gains=False):
+    def train(self, weight=True, shifts=False, gains=False):
         """
         Configures the model for training by setting the required parameters to require gradients.
 
@@ -137,7 +137,7 @@ class RNN:
         # Set requires_grad based on input arguments
         self.W.requires_grad = weight
         self.gains.requires_grad = gains
-        self.shifts.requires_grad = shift
+        self.shifts.requires_grad = shifts
 
     def eval(self):
         """
@@ -170,6 +170,7 @@ class RNN:
             gains_matrix (np.array): Array containing the new gains (N x 1).
         """
         self.gains = torch.tensor(gains_matrix)
+        self.A = self.get_activation(self.H)
 
     def set_shifts(self, shifts_matrix: np.array):
         """
@@ -179,6 +180,7 @@ class RNN:
             shifts_matrix (np.array): Array containing the new shifts (N x 1).
         """
         self.shifts = torch.tensor(shifts_matrix)
+        self.A = self.get_activation(self.H)
 
     # Resetter methods
     def reset_states(self):
@@ -195,6 +197,7 @@ class RNN:
         """
         self.W = torch.zeros((self.N, self.N), dtype=torch.float32)
         self.C = torch.zeros((self.N, self.N), dtype=torch.float32)
+        self.A = self.get_activation(self.H)
 
     # Dynamic methods
     def get_output(self):
