@@ -5,7 +5,7 @@ class functional:
     def name(self):
         raise NotImplementedError("Subclasses should implement this method.")
 
-    def call(self, spectrum, target_value):
+    def call(self, x):
         raise NotImplementedError("Subclasses should implement this method.")
 
 
