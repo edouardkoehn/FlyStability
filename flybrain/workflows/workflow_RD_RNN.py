@@ -92,7 +92,7 @@ def run_training_RD_RNN(
     train_weights: bool = True,
     train_shifts: bool = False,
     train_gains: bool = False,
-    activation: str = "tanh",
+    activation: str = "tanh_pos",
     dt: float = 0.1,
 ):
     # Set up paths
