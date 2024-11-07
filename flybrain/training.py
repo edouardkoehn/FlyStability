@@ -24,6 +24,7 @@ def train_RD_RNN(
     train_gains: bool,
     lr: float,
     run_name: str,
+    run_type="rd_RNN",
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -45,8 +46,8 @@ def train_RD_RNN(
     rnn_model = rnn_model
     # Set up paths for saving logs and rnns
     ROOT_PATH = utils.get_root()
-    output_logs_path = os.path.join(ROOT_PATH, "data", "logs", "rd_RNN")
-    output_rnn_path = os.path.join(ROOT_PATH, "data", "models", "rd_RNN")
+    output_logs_path = os.path.join(ROOT_PATH, "data", "logs", run_type)
+    output_rnn_path = os.path.join(ROOT_PATH, "data", "models", run_type)
 
     # Configure the rnn for training with specified parameters
     rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
@@ -113,7 +114,7 @@ def train_RD_RNN(
         maxLambda_hist[epoch] = spectrum.max().item()
 
         # Periodically log progress and save data
-        if epoch % 10 == 0 or epoch == N_epoch - 1:
+        if epoch % 1 == 0 or epoch == N_epoch - 1:
             print(
                 f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
                 end=" ",
@@ -144,8 +145,6 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
-
-    print(f"{run_name}: {time.time() - t0:.2f} - Training completed.")
     return
 
 

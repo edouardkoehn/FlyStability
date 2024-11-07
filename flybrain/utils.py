@@ -256,7 +256,6 @@ def plot_losses(file_path, losses, maxlambda):
         axs[0].plot(np.arange(1, loss.shape[0] + 1), loss, alpha=0.5)
     for maxl in maxlambda:
         axs[1].scatter(np.arange(1, maxl.shape[0] + 1), maxl, alpha=0.5)
-    print(file_path)
     axs[0].set_title("Training Loss")
     axs[0].set_ylabel(r"$|\lambda|$")
     axs[1].set_title(r"Training $\lambda_{max}$")

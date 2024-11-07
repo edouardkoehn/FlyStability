@@ -25,8 +25,15 @@ from flybrain.training import train_RD_RNN
     help="Which loss we want to use for the optimisation",
 )
 @click.option(
+    "--ROI",
+    type=str,
+    required=True,
+    default="EB",
+    help="Which ROI, we would like to use",
+)
+@click.option(
     "--activation",
-    type=click.Choice(["tanh_pos, tanh_streched"]),
+    type=click.Choice(["tanh_pos", "tanh_streched"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -51,16 +58,9 @@ from flybrain.training import train_RD_RNN
     "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
-    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
+    "--lr", type=float, required=False, default=0.01, help="Learning rate used"
 )
-@click.option(
-    "--ROI",
-    type=bool,
-    required=False,
-    default=True,
-    help="Which ROI, we would like to use",
-)
-def run_training_RD_RNN(
+def run_training_flybrain_RNN(
     n_samples: int = 1,
     nle: int = 1,
     loss: str = "l2",
@@ -68,8 +68,8 @@ def run_training_RD_RNN(
     tons: float = 0.2,
     tsim: int = 200,
     n_epochs: int = 100,
-    lr: float = 0.001,
-    ROI: str = "EllipsoidBody",
+    lr: float = 0.01,
+    roi: str = "EllipsoidBody",
     activation: str = "tanh_pos",
     dt: float = 0.1,
 ):
@@ -90,11 +90,11 @@ def run_training_RD_RNN(
         "tanh_pos": functional.tanh_positive(),
         "tanh_strech": functional.tanh_strech(),
     }[activation]
-
+    ROI = {"EB": "ellipsoid_body"}[roi]
     experiment_name = (
-        f"{activation_func.name()}_ROI{ROI}Weights{False}_Shifts{True}_"
+        f"{activation_func.name()}_ROI_{roi}_Weights{False}_Shifts{True}_"
         f"Gains{True}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
-        f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}"
+        f"Tons{tons}_Tsim{tsim}_dt{dt}"
     )
 
     training_loss, training_maxlambda, spectrum = [], [], []
@@ -122,11 +122,12 @@ def run_training_RD_RNN(
             tSim=tsim,
             tONs=tons,
             dt=dt,
-            train_weights=True,
+            train_weights=False,
             train_shifts=True,
-            train_gains=False,
+            train_gains=True,
             lr=lr,
             run_name=run_name,
+            run_type="flybrain_RNN",
         )
 
         # Load logs and store results
@@ -158,4 +159,4 @@ def run_training_RD_RNN(
 
 
 if __name__ == "__main__":
-    run_training_RD_RNN()
+    run_training_flybrain_RNN()

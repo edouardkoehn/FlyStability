@@ -100,7 +100,7 @@ def run_training_RD_RNN(
     ROOT = utils.get_root()
     output_paths = {
         "logs": os.path.join(ROOT, "data", "logs", "rd_RNN"),
-        "fig": os.path.join(ROOT, "data", "fig", "train_model_weight"),
+        "fig": os.path.join(ROOT, "data", "fig", "rd_RNN"),
         "model": os.path.join(ROOT, "data", "models", "rd_RNN"),
     }
     for path in output_paths.values():
@@ -151,6 +151,7 @@ def run_training_RD_RNN(
             train_gains=train_gains,
             lr=lr,
             run_name=run_name,
+            run_type="rd_RNN",
         )
 
         # Load logs and store results
