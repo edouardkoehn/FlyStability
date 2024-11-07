@@ -44,4 +44,4 @@ exclude = '''
 '''
 # Scripts of your module
 [tool.poetry.scripts]
-transition_2_chaos = "flybrain.workflows:transition_2_chaos.find_transition_2_chaos"
+transition_2_chaos = "flybrain.workflows:workflow_trans2chaos.find_transition_2_chaos"

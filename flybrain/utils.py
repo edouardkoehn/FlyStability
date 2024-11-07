@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 from pathlib import Path
 
@@ -135,7 +136,7 @@ def run_plot_rnn(model, duration, driving_force=None, ind=None):
     return fig
 
 
-def construct_path(main_name):
+""" def construct_path(main_name):
     ROOT_PATH = get_root()
     output_folder_figs = os.path.join(ROOT_PATH, "data", "fig", main_name)
     output_folder_logs = os.path.join(ROOT_PATH, "data", "logs", main_name)
@@ -149,6 +150,7 @@ def construct_path(main_name):
         os.mkdir(output_folder_models)
 
     return (output_folder_figs, output_folder_logs, output_folder_models)
+ """
 
 
 def load_flybrain(ROI: str = "ellipsoid_body"):
@@ -209,39 +211,85 @@ def get_Normalize_Connectivity(W, C):
     return (W_inhib_N + W_exci_N), C
 
 
-def load_trained_model(
-    model_name: str, load_gains_shifts: bool = False, loads_types: bool = False
-):
-    general_path_model = os.path.join(
-        get_root(), "data", "models", "train_model_flybrain", model_name
+import json
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def plot_spectrum(file_path, spectrum):
+    """
+    Plots the full Lyapunov spectrum and saves the plot to a file.
+
+    Parameters:
+    - file_path (str): Path to save the spectrum plot image.
+    - spectrum (list of np.ndarray): List of Lyapunov spectra, each as an array.
+
+    Each element in the spectrum list represents a different sample's Lyapunov spectrum,
+    and points are plotted with markers and transparency to distinguish multiple spectra.
+    """
+    fig, ax = plt.subplots(figsize=(10, 7))
+    for i, spec in enumerate(spectrum):
+        ax.scatter(np.arange(spec.shape[0]), spec, marker="o", s=2.5, alpha=0.4)
+    ax.hlines(
+        y=0,
+        xmin=0,
+        xmax=spectrum[0].shape[0],
+        linestyles="--",
+        color="black",
+        alpha=0.5,
     )
+    ax.set_title("Lyapunov Spectrum")
+    ax.set_ylabel(r"$\lambda_i$")
+    ax.set_xlabel(r"$i$")
+    plt.tight_layout()
+    plt.savefig(f"{file_path}_spectrum_logs.png")
 
-    path_C = general_path_model + "_C.pt"
-    path_H = general_path_model + "_H.pt"
-    path_H0 = general_path_model + "_H0.pt"
-    path_W = general_path_model + "_W.pt"
-    C = torch.load(path_C, weights_only=True).detach().clone()
-    H = torch.load(path_H, weights_only=True).detach().clone()
-    H0 = torch.load(path_H0, weights_only=True).detach().clone()
-    W = torch.load(path_W, weights_only=True).detach().clone()
 
-    if load_gains_shifts & loads_types:
+def plot_losses(file_path, losses, maxlambda):
+    """
+    Plots training loss and maximum Lyapunov exponent over epochs, saving the plot to a file.
 
-        path_T = general_path_model + "_T.pt"
-        T = torch.load(path_T, weights_only=True).detach().clone()
-        output = {"W": W, "C": C, "H": H, "H0": H0, "gains": G, "shifts": S, "types": T}
+    Parameters:
+    - file_path (str): Path to save the training plot image.
+    - losses (list of np.ndarray): List of arrays representing training loss over epochs.
+    - maxlambda (list of np.ndarray): List of arrays representing maximum Lyapunov exponents.
 
-    elif load_gains_shifts & (not loads_types):
-        path_G = general_path_model + "_G.pt"
-        path_S = general_path_model + "_S.pt"
-        G = torch.load(path_G, weights_only=True).detach().clone()
-        S = torch.load(path_S, weights_only=True).detach().clone()
-        output = {"W": W, "C": C, "H": H, "H0": H0, "gains": G, "shifts": S}
+    Plots the evolution of training loss and the maximum Lyapunov exponent for each sample.
+    """
+    fig, axs = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
+    for loss in losses:
+        axs[0].plot(np.arange(loss.shape[0]), loss, alpha=0.5)
+    for maxl in maxlambda:
+        axs[1].scatter(np.arange(maxl.shape[0]), maxl, alpha=0.5)
 
-    elif (not load_gains_shifts) & loads_types:
-        path_T = general_path_model + "_T.pt"
-        T = torch.load(path_T, weights_only=True).detach().clone()
-        output = {"W": W, "C": C, "H": H, "H0": H0, "types": T}
-    else:
-        output = {"W": W, "C": C, "H": H, "H0": H0}
-    return output
+    axs[0].set_title("Training Loss")
+    axs[0].set_ylabel(r"$|\lambda|$")
+    axs[1].set_title(r"Training $\lambda_{max}$")
+    axs[1].set_ylabel(r"$\lambda_{max}$")
+    axs[1].set_xlabel(r"$Epoch$")
+    plt.tight_layout()
+    plt.savefig(f"{file_path}_training_logs.png")
+
+
+def load_logs(file_path):
+    """
+    Loads and converts log data from a JSON file to a dictionary of NumPy arrays.
+
+    Parameters:
+    - file_path (str): Path to the JSON file containing training logs.
+
+    Returns:
+    - dict: Dictionary containing NumPy arrays for training losses, spectrum,
+      maximum Lyapunov exponents, and gradient norms for weights, gains, and shifts.
+    """
+    with open(file_path, "r") as f:
+        data = json.load(f)
+    return {
+        "training_loss": np.array(data["training_loss"]),
+        "spectrum": np.array(data["spectrum"]),
+        "training_lambda_max": np.array(data["training_lambda_max"]),
+        "grad_gains": np.array(data["grad_gains"]),
+        "grad_shifts": np.array(data["grad_shifts"]),
+        "grad_weights": np.array(data["grad_weights"]),
+    }

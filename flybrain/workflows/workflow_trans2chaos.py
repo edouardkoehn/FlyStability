@@ -34,6 +34,12 @@ from flybrain.lyapunov import Lyapunov
     default="std",
     help="Activation function used in the model (default: std)",
 )
+@click.option(
+    "--activation",
+    type=bool,
+    default=True,
+    help="Options to save the output",
+)
 def find_transition_2_chaos(
     gmin: float,
     gmax: float,
@@ -44,6 +50,7 @@ def find_transition_2_chaos(
     dt: float = 0.1,
     tOns: float = 0.2,
     activation: str = "tanh",
+    save: bool = True,
 ):
     """Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum."""
 

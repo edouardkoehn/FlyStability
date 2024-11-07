@@ -4,7 +4,7 @@ import sys
 import numpy as np
 import torch
 
-from flybrain.functional import tanh_strech
+from flybrain.functional import tanh, tanh_positive, tanh_strech
 from flybrain.utils import get_root
 
 
@@ -32,7 +32,14 @@ class RNN:
         test_init: Validates the integrity of the model initialization to ensure compatibility of shapes and connectivity.
     """
 
-    def __init__(
+    def __init__(self, *inp):
+        if len(inp) == 2:
+            self.construct_model_based_on_path(inp)
+        else:
+            self.default_constructor(inp)
+        pass
+
+    def default_constructor(
         self,
         connectivity_matrix: np.array,
         weights_matrix: np.array,
@@ -104,6 +111,64 @@ class RNN:
 
         # Test initialization
         self.test_init()
+
+    def construct_model_based_on_path(self, path_to_matrix: str, activation: str):
+        """
+        Constructs a model by loading required matrices and parameters from specified file paths.
+
+        Parameters:
+        - path_to_matrix (str): Directory path containing the saved model matrices and parameters.
+        Expects the following files in the directory:
+            - "W.pt": Weight matrix of the model.
+            - "C.pt": Connectivity matrix.
+            - "H.pt": State vector of neurons.
+            - "H_0.pt": Initial condition of the neurons' state vector.
+            - "gains.pt": Gain values vector for neurons.
+            - "shifts.pt": Shift values vector for neurons.
+            - "types.pt": Cell type vector for neuron classification.
+        - activation (str): Specifies the activation function to use in the model. Acceptable values:
+            - "std": Standard tanh activation function.
+            - "pos": Positive tanh activation function.
+            - "strech": Stretched tanh activation function.
+
+        Returns:
+        - None: Initializes the model's components in-place using the specified parameters.
+
+        Raises:
+        - KeyError: If an unsupported activation function string is passed.
+        - FileNotFoundError: If any required file is missing in `path_to_matrix`.
+
+        Notes:
+        - The function relies on `self.default_constructor` to initialize the model with loaded parameters.
+        """
+        # Load matrices and parameters from files
+        W = torch.load(os.path.join(path_to_matrix, "W.pt"))
+        C = torch.load(os.path.join(path_to_matrix, "C.pt"))
+        H = torch.load(os.path.join(path_to_matrix, "H.pt"))
+        H_0 = torch.load(os.path.join(path_to_matrix, "H_0.pt"))
+        gains = torch.load(os.path.join(path_to_matrix, "gains.pt"))
+        shifts = torch.load(os.path.join(path_to_matrix, "shifts.pt"))
+        types = torch.load(os.path.join(path_to_matrix, "types.pt"))
+
+        # Select activation function based on input string
+        activation_function = {
+            "std": tanh(),
+            "pos": tanh_positive(),
+            "strech": tanh_strech(),
+        }[activation]
+
+        # Initialize model using loaded parameters
+        self.default_constructor(
+            connectivity_matrix=C,
+            weights_matrix=W,
+            initial_condition=H_0,
+            gains_vector=gains,
+            shifts_vector=shifts,
+            shifts=shifts,
+            cell_types_vector=types,
+            activation_function=activation_function,
+        )
+        return
 
     def test_init(self):
         """Simple method to check that the initialization is successful and shapes are compatible."""
@@ -292,11 +357,13 @@ class RNN:
         Args:
             model_name (str): Name of the model to save.
         """
-        torch.save(self.W, f"{model_name}_W.pt")
-        torch.save(self.C, f"{model_name}_C.pt")
-        torch.save(self.H, f"{model_name}_H.pt")
-        torch.save(self.H_0, f"{model_name}_H0.pt")
-        torch.save(self.gains, f"{model_name}_gains.pt")
-        torch.save(self.shifts, f"{model_name}_shifts.pt")
-        torch.save(self.types, f"{model_name}_cellType.pt")
+
+        os.makedirs(model_name, exist_ok=True)
+        torch.save(self.W, os.path.join(model_name, "W.pt"))
+        torch.save(self.C, os.path.join(model_name, "C.pt"))
+        torch.save(self.H, os.path.join(model_name, "H.pt"))
+        torch.save(self.H_0, os.path.join(model_name, "H0pt"))
+        torch.save(self.gains, os.path.join(model_name, "gains.pt"))
+        torch.save(self.shifts, os.path.join(model_name, "shifts.pt"))
+        torch.save(self.types, os.path.join(model_name, "types.pt"))
         return
