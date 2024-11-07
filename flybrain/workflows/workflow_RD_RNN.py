@@ -55,7 +55,7 @@ from flybrain.training import train_RD_RNN
     "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
-    "--lr", type=int, required=False, default=0.001, help="Learning rate used"
+    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
 )
 @click.option(
     "--train_weights",
