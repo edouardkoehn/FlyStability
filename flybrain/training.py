@@ -53,8 +53,6 @@ def train_RD_RNN(
     rnn_model.reset_states()
 
     # Set up optimizer based on selected training parameters
-
-    """
     optimizer = set_optimizer(
         rnn_model,
         lr=lr,
@@ -62,15 +60,6 @@ def train_RD_RNN(
         train_gains=train_gains,
         train_shifts=train_shifts,
     )
-    """
-    parameters = []
-    if train_weights:
-        parameters.append(rnn_model.W)
-    if train_shifts:
-        parameters.append(rnn_model.shifts)
-    if train_gains:
-        parameters.append(rnn_model.gains)
-    optimizer = torch.optim.Adam(parameters, lr=lr)
     optimizer.zero_grad()
 
     c0 = rnn_model.H_0.detach().numpy()
@@ -99,25 +88,25 @@ def train_RD_RNN(
             rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=nLE
         )
         loss_val = loss.call(spectrum)
-        # print(loss_val)
         optimizer.zero_grad()
         loss_val.backward()
 
-        # print('a',rnn_model.gains.grad)
         # Gradient clipping and storing gradient norms if applicable
-
         if train_shifts:
-            # torch.nn.utils.clip_grad_norm_([rnn.shifts], max_norm=1000, norm_type=2.0)
+            torch.nn.utils.clip_grad_norm_(
+                [rnn_model.shifts], max_norm=100, norm_type=2.0
+            )
             grad_norm_shifts[epoch] = torch.norm(rnn_model.shifts.grad)
         if train_gains:
-            # torch.nn.utils.clip_grad_norm_([rnn.gains], max_norm=1000, norm_type=2.0)
+            torch.nn.utils.clip_grad_norm_(
+                [rnn_model.gains], max_norm=100, norm_type=2.0
+            )
             grad_norm_gains[epoch] = torch.norm(rnn_model.gains.grad)
         if train_weights:
-            # torch.nn.utils.clip_grad_norm_([rnn.W], max_norm=1000, norm_type=2.0)
+            torch.nn.utils.clip_grad_norm_([rnn_model.W], max_norm=100, norm_type=2.0)
             grad_norm_weights[epoch] = torch.norm(rnn_model.W.grad)
-        # print('be', rnn_model.W)
         optimizer.step()
-        # print('af', rnn_model.W)
+
         # Log error and spectrum history
         error[epoch] = loss_val.detach().item()
         spectrum_hist[:, epoch] = spectrum.detach().numpy()
@@ -135,7 +124,6 @@ def train_RD_RNN(
                 print(f" - Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
             if train_weights:
                 print(f" - Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
-
             print()
             # Save detailed spectrum logs every 10 epochs
             spectrum_full = Lyapunov().compute_spectrum(
