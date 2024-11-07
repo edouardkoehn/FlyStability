@@ -211,12 +211,6 @@ def get_Normalize_Connectivity(W, C):
     return (W_inhib_N + W_exci_N), C
 
 
-import json
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-
 def plot_spectrum(file_path, spectrum):
     """
     Plots the full Lyapunov spectrum and saves the plot to a file.
@@ -259,10 +253,10 @@ def plot_losses(file_path, losses, maxlambda):
     """
     fig, axs = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
     for loss in losses:
-        axs[0].plot(np.arange(loss.shape[0]), loss, alpha=0.5)
+        axs[0].plot(np.arange(1, loss.shape[0] + 1), loss, alpha=0.5)
     for maxl in maxlambda:
-        axs[1].scatter(np.arange(maxl.shape[0]), maxl, alpha=0.5)
-
+        axs[1].scatter(np.arange(1, maxl.shape[0] + 1), maxl, alpha=0.5)
+    print(file_path)
     axs[0].set_title("Training Loss")
     axs[0].set_ylabel(r"$|\lambda|$")
     axs[1].set_title(r"Training $\lambda_{max}$")
@@ -270,6 +264,7 @@ def plot_losses(file_path, losses, maxlambda):
     axs[1].set_xlabel(r"$Epoch$")
     plt.tight_layout()
     plt.savefig(f"{file_path}_training_logs.png")
+    return
 
 
 def load_logs(file_path):

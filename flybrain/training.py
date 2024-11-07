@@ -46,7 +46,7 @@ def train_RD_RNN(
     # Set up paths for saving logs and rnns
     ROOT_PATH = utils.get_root()
     output_logs_path = os.path.join(ROOT_PATH, "data", "logs", "rd_RNN")
-    output_rnn_path = os.path.join(ROOT_PATH, "data", "rnn", "rd_RNN")
+    output_rnn_path = os.path.join(ROOT_PATH, "data", "models", "rd_RNN")
 
     # Configure the rnn for training with specified parameters
     rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)

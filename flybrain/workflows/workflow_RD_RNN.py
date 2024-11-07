@@ -101,7 +101,7 @@ def run_training_RD_RNN(
     output_paths = {
         "logs": os.path.join(ROOT, "data", "logs", "rd_RNN"),
         "fig": os.path.join(ROOT, "data", "fig", "train_model_weight"),
-        "model": os.path.join(ROOT, "data", "model", "rd_RNN"),
+        "model": os.path.join(ROOT, "data", "models", "rd_RNN"),
     }
     for path in output_paths.values():
         os.makedirs(path, exist_ok=True)
