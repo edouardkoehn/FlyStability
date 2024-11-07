@@ -6,13 +6,13 @@ import numpy as np
 import torch
 
 import flybrain.functional as functional
-import flybrain.model as model
+import flybrain.model as Model
 import flybrain.utils as utils
 from flybrain.lyapunov import Lyapunov
 
 
 def train_RD_RNN(
-    model: model.RNN,
+    rnn_model: Model.RNN,
     loss: functional.loss,
     nLE: int,
     N_epoch: int,
@@ -26,10 +26,10 @@ def train_RD_RNN(
     run_name: str,
 ):
     """
-    Trains a recurrent neural network (RNN) model with random connectivity, utilizing Lyapunov exponents as feedback.
+    Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
 
     Parameters:
-    - model (model.RNN): RNN model instance with random connectivity matrix.
+    - rnn (rnn.RNN): RNN rnn instance with random connectivity matrix.
     - loss (functional.loss): Loss function to minimize during training.
     - nLE (int): Number of Lyapunov exponents to compute.
     - N_epoch (int): Number of training epochs.
@@ -40,27 +40,40 @@ def train_RD_RNN(
     - train_shifts (bool): Whether to train shift parameters.
     - train_gains (bool): Whether to train gain parameters.
     - lr (float): Learning rate for the optimizer.
-    - run_name (str): Name for the current training run, used for saving logs and model.
+    - run_name (str): Name for the current training run, used for saving logs and rnn.
     """
-
-    # Set up paths for saving logs and models
+    rnn_model = rnn_model
+    # Set up paths for saving logs and rnns
     ROOT_PATH = utils.get_root()
     output_logs_path = os.path.join(ROOT_PATH, "data", "logs", "rd_RNN")
-    output_model_path = os.path.join(ROOT_PATH, "data", "model", "rd_RNN")
+    output_rnn_path = os.path.join(ROOT_PATH, "data", "rnn", "rd_RNN")
 
-    # Configure the model for training with specified parameters
-    model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
-    model.reset_states()
+    # Configure the rnn for training with specified parameters
+    rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
+    rnn_model.reset_states()
 
     # Set up optimizer based on selected training parameters
+
+    """
     optimizer = set_optimizer(
+        rnn_model,
         lr=lr,
         train_weights=train_weights,
         train_gains=train_gains,
         train_shifts=train_shifts,
     )
+    """
+    parameters = []
+    if train_weights:
+        parameters.append(rnn_model.W)
+    if train_shifts:
+        parameters.append(rnn_model.shifts)
+    if train_gains:
+        parameters.append(rnn_model.gains)
+    optimizer = torch.optim.Adam(parameters, lr=lr)
     optimizer.zero_grad()
-    c0 = model.H_0.detach().numpy()
+
+    c0 = rnn_model.H_0.detach().numpy()
 
     # Initialize logging arrays for errors, spectrum, and gradient norms
     error = np.zeros(N_epoch)
@@ -74,55 +87,59 @@ def train_RD_RNN(
     t0 = time.time()
     print(f"{run_name}: {time.time() - t0:.2f} - Starting training...")
 
+    # Initialize and return the optimizer with the selected parameters
+    torch.autograd.set_detect_anomaly(True)
+
     for epoch in range(N_epoch):
-        # Reset model states and optimizer gradients
-        model.set_states(c0)
-        optimizer.zero_grad()
+        # Reset rnn states and optimizer gradients
+        rnn_model.set_states(c0)
 
         # Compute Lyapunov spectrum and loss
         spectrum = Lyapunov().compute_spectrum(
-            model, tSim=tSim, dt=dt, tONS=tONs, nLE=nLE
+            rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=nLE
         )
         loss_val = loss.call(spectrum)
-
-        # Backpropagation
+        # print(loss_val)
+        optimizer.zero_grad()
         loss_val.backward()
 
+        # print('a',rnn_model.gains.grad)
         # Gradient clipping and storing gradient norms if applicable
+
         if train_shifts:
-            torch.nn.utils.clip_grad_norm_([model.shifts], max_norm=1000, norm_type=2.0)
-            grad_norm_shifts[epoch] = torch.norm(model.shifts.grad)
+            # torch.nn.utils.clip_grad_norm_([rnn.shifts], max_norm=1000, norm_type=2.0)
+            grad_norm_shifts[epoch] = torch.norm(rnn_model.shifts.grad)
         if train_gains:
-            torch.nn.utils.clip_grad_norm_([model.gains], max_norm=1000, norm_type=2.0)
-            grad_norm_gains[epoch] = torch.norm(model.gains.grad)
+            # torch.nn.utils.clip_grad_norm_([rnn.gains], max_norm=1000, norm_type=2.0)
+            grad_norm_gains[epoch] = torch.norm(rnn_model.gains.grad)
         if train_weights:
-            torch.nn.utils.clip_grad_norm_([model.W], max_norm=1000, norm_type=2.0)
-            grad_norm_weights[epoch] = torch.norm(model.W.grad)
-
+            # torch.nn.utils.clip_grad_norm_([rnn.W], max_norm=1000, norm_type=2.0)
+            grad_norm_weights[epoch] = torch.norm(rnn_model.W.grad)
+        # print('be', rnn_model.W)
         optimizer.step()
-
+        # print('af', rnn_model.W)
         # Log error and spectrum history
         error[epoch] = loss_val.detach().item()
         spectrum_hist[:, epoch] = spectrum.detach().numpy()
         maxLambda_hist[epoch] = spectrum.max().item()
 
         # Periodically log progress and save data
-        if epoch % 10 == 0 or epoch == N_epoch - 1:
+        if epoch % 1 == 0 or epoch == N_epoch - 1:
             print(
                 f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
                 end=" ",
             )
             if train_shifts:
-                print(f"Shifts_norm: {grad_norm_shifts[epoch]:.3f}", end=" ")
+                print(f" - Shifts_norm: {grad_norm_shifts[epoch]:.3f}", end=" ")
             if train_gains:
-                print(f"Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
+                print(f" - Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
             if train_weights:
-                print(f"Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
-            print()
+                print(f" - Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
 
+            print()
             # Save detailed spectrum logs every 10 epochs
             spectrum_full = Lyapunov().compute_spectrum(
-                model, tSim=tSim, dt=dt, tONS=tONs, nLE=model.N - 1
+                rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=rnn_model.N - 1
             )
             with open(
                 os.path.join(output_logs_path, run_name + "_logs.json"), "w"
@@ -138,21 +155,21 @@ def train_RD_RNN(
                     },
                     f,
                 )
-            model.save(os.path.join(output_model_path, run_name))
+            rnn_model.save(os.path.join(output_rnn_path, run_name))
 
     print(f"{run_name}: {time.time() - t0:.2f} - Training completed.")
     return
 
 
 def set_optimizer(
-    lr: float, train_weights: bool, train_shifts: bool, train_gains: bool
+    rnn, lr: float, train_weights: bool, train_shifts: bool, train_gains: bool
 ):
     """
     Configures and returns an Adam optimizer based on selected training parameters.
 
     Parameters:
     - lr (float): Learning rate for the optimizer.
-    - train_weights (bool): If True, include model weights in optimization.
+    - train_weights (bool): If True, include rnn weights in optimization.
     - train_shifts (bool): If True, include shift parameters in optimization.
     - train_gains (bool): If True, include gain parameters in optimization.
 
@@ -162,11 +179,10 @@ def set_optimizer(
     # Collect parameters for optimization
     parameters = []
     if train_weights:
-        parameters.append(model.W)
+        parameters.append(rnn.W)
     if train_shifts:
-        parameters.append(model.shifts)
+        parameters.append(rnn.shifts)
     if train_gains:
-        parameters.append(model.gains)
-
+        parameters.append(rnn.gains)
     # Initialize and return the optimizer with the selected parameters
     return torch.optim.Adam(parameters, lr=lr)

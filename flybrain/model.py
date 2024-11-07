@@ -32,11 +32,28 @@ class RNN:
         test_init: Validates the integrity of the model initialization to ensure compatibility of shapes and connectivity.
     """
 
-    def __init__(self, *inp):
+    def __init__(self, *inp, **kwargs):
         if len(inp) == 2:
-            self.construct_model_based_on_path(inp)
+            self.construct_model_based_on_path(
+                *inp
+            )  # Expect two arguments: path and activation
         else:
-            self.default_constructor(inp)
+            self.default_constructor(
+                **kwargs
+            )  # Expect named arguments for model parameters
+
+    def construct_model_based_on_path(self, path_to_matrix, activation):
+        # Your existing construct_model_based_on_path implementation here
+        pass
+
+    def default_constructor(
+        self,
+        connectivity_matrix,
+        weights_matrix,
+        initial_condition,
+        activation_function,
+    ):
+        # Your existing default_constructor implementation here
         pass
 
     def default_constructor(
