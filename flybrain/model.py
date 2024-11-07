@@ -42,20 +42,6 @@ class RNN:
                 **kwargs
             )  # Expect named arguments for model parameters
 
-    def construct_model_based_on_path(self, path_to_matrix, activation):
-        # Your existing construct_model_based_on_path implementation here
-        pass
-
-    def default_constructor(
-        self,
-        connectivity_matrix,
-        weights_matrix,
-        initial_condition,
-        activation_function,
-    ):
-        # Your existing default_constructor implementation here
-        pass
-
     def default_constructor(
         self,
         connectivity_matrix: np.array,
