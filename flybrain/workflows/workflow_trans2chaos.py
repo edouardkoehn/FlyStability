@@ -35,7 +35,7 @@ from flybrain.lyapunov import Lyapunov
     help="Activation function used in the model (default: std)",
 )
 @click.option(
-    "--activation",
+    "--save",
     type=bool,
     default=True,
     help="Options to save the output",
@@ -44,7 +44,7 @@ def find_transition_2_chaos(
     gmin: float,
     gmax: float,
     m_g: int,
-    N: int = 100,
+    N: int = 400,
     n_samples: int = 10,
     tSim: int = 200,
     dt: float = 0.1,
@@ -95,11 +95,17 @@ def find_transition_2_chaos(
 
     # Plotting
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.stripplot(data=data, ax=ax, alpha=0.4, palette="Set2")
+    palette = sns.color_palette("Set2", n_colors=len(gs))
+    sns.stripplot(data=data, ax=ax, alpha=0.4, palette=palette)
     medians = data.median()
     for i, median in enumerate(medians):
         ax.scatter(
-            i, median, marker="D", color="blue", edgecolor="black", alpha=1
+            i,
+            median,
+            marker="D",
+            color=palette[i],
+            edgecolor="black",
+            alpha=1,
         )  # Mark median points
 
     # Add threshold line at 0
