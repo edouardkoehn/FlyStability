@@ -24,7 +24,7 @@ E. [Installation](#installation)
 ## C. Data usage
 
 ## D. Worklows
-### D.1 Convergence_lyapunoc
+### D.1 Convergence_lyapunov
 ```bash
 % lyapu_convergence --help
 Usage: lyapu_convergence [OPTIONS]
@@ -66,7 +66,7 @@ Options:
   --save BOOLEAN                 Options to save the output
   --help                         Show this message and exit.
 ```
-### D.3 train_RD_RNN
+### D.3 train_rd_model
 ```bash
 % train_rd_model --help
 Usage: train_rd_model [OPTIONS]
@@ -90,21 +90,44 @@ Options:
   --train_gains BOOLEAN           Optimizition on the gains
   --help                          Show this message and exit.
 ```
-### D.4 train_flybrain_rnn
+### D.4 train_flybrain_full
 ```bash
- % train_flybrain_model --help
-Usage: train_flybrain_model [OPTIONS]
+% train_flybrain_full --help
+Usage: train_flybrain_full [OPTIONS]
 
 Options:
-  --n_samples, --n_samples INTEGER
-                                  Number of sample used, (default:1)
+  --n_samples INTEGER             Number of sample used, (default:1)
                                   [required]
   --nLE INTEGER                   Number of Lyapunov exponent used  [required]
-  --loss [l2|MSE]                 Which loss we want to use for the optimisation  [required]
+  --loss [l2|MSE]                 Which loss we want to use for the
+                                  optimisation  [required]
   --ROI TEXT                      Which ROI, we would like to use  [required]
   --activation [tanh_pos|tanh_streched]
                                   Which loss we want to use for the
                                   optimisation  [required]
+  --target FLOAT                  Target lyapunov vector
+  --tOns FLOAT                    Step size between two consecutive QR facto
+  --tSim INTEGER                  Length of the simulation [tau]
+  --n_epochs INTEGER              Number of epochs used
+  --lr FLOAT                      Learning rate used
+  --help                          Show this message and exit.
+```
+### D.4 train_flybrain_pop
+```bash
+% train_flybrain_pop --help
+Usage: train_flybrain_pop [OPTIONS]
+Options:
+  --n_samples INTEGER             Number of sample used
+  --nle INTEGER                   Number of Lyapunov exponent used
+  --subpopulation [cell_fibers|neurotransmitter]
+                                  Which features would you like to use to
+                                  define the subpopulation
+  --ROI TEXT                      Which ROI, we would like to use  [required]
+  --activation [tanh_pos|tanh_streched]
+                                  Which loss we want to use for the
+                                  optimisation
+  --loss [l2|MSE]                 Which loss we want to use for the
+                                  optimisation
   --target FLOAT                  Target lyapunov vector
   --tOns FLOAT                    Step size between two consecutive QR facto
   --tSim INTEGER                  Length of the simulation [tau]
