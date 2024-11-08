@@ -80,7 +80,14 @@ class RNN:
             if cell_types_vector is not None
             else np.arange(0, initial_condition.shape[0])
         )
+        types_2_index = {
+            f"{type}": i
+            for type, i in zip(set(self.cell_types), range(len(set(self.cell_types))))
+        }
+        print(types_2_index)
+        self.cell_types = [types_2_index[f"{type}"] for type in self.cell_types]
         self.types = torch.tensor(self.cell_types, dtype=torch.int, requires_grad=False)
+        print(self.types)
         self.gains = (
             gains_vector
             if gains_vector is not None
