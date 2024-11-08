@@ -3,6 +3,7 @@ This repository contains all the code related to the Fly Stability project. This
 
 The goal of this project was to answer the following questions:
 - How does the stability of an RNN influence the emegence of functional dynamic?
+
 -Is stability a sufficient or necessary condition for functionnla dynamic to develop?
 # Index
 A. [Background](#installation)
@@ -24,10 +25,93 @@ E. [Installation](#installation)
 
 ## D. Worklows
 ### D.1 Convergence_lyapunoc
-### D.2 transition_2_Chaos
-### D.3 train_RD_RNN
-### D.4 train_flybrain_rnn
+```bash
+% lyapu_convergence --help
+Usage: lyapu_convergence [OPTIONS]
 
+  Simulates the convergence of Lyapunov exponents in a recurrent neural
+  network (RNN) model.
+
+  Parameters:   tons (float): Initial transient time before recording starts.
+                n_samples (int): Number of samples to test.
+                g (float):Coupling strength for connectivity matrix.
+                n (int): Number of neurons in the network.
+                nle (int): Number of Lyapunov exponents to compute.
+                dt(float): Time step size for integration.
+                tsim (int): Total simulation time.
+                activation (str): Type of activation function ('std', 'pos','strech').
+
+Options:
+  --tons FLOAT                    tons used in this experiment  [required]
+  --activation [tanh|tanh_pos|tanh_streched]
+                                  Which loss we want to use for theoptimisation  [required]
+  --g FLOAT                       Syn dist
+  --n_samples INTEGER             Amount of sample
+  --n INTEGER                     Size of the model, number of neurons used
+  --nle INTEGER                   number of lyapunoc computed
+  --help                          Show this message and exit.
+```
+### D.2 transition_2_Chaos
+```bash
+% transition_2_chaos --help
+Usage: transition_2_chaos [OPTIONS]
+  Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum.
+
+Options:
+  --gmin FLOAT                   Minimum value for coupling strength g [required]
+  --gmax FLOAT                   Maximum value for coupling strength g [required]
+  --m_g INTEGER                  Number of g values between gmin and gmax (default: 5)
+  --n_samples INTEGER            Number of samples for each g value [required]
+  --activation [std|pos|strech]  Activation function used in the model (default: std)
+  --save BOOLEAN                 Options to save the output
+  --help                         Show this message and exit.
+```
+### D.3 train_RD_RNN
+```bash
+% train_rd_model --help
+Usage: train_rd_model [OPTIONS]
+
+Options:
+  --n INTEGER                     Size of the model, number of neurons used [required]
+  --n_samples, --n_samples INTEGER
+                                  Number of sample used, (default:1) [required]
+  --nLE INTEGER                   Number of Lyapunov exponent used  [required]
+  --loss [l2|MSE]                 Which loss we want to use for the optimisation  [required]
+  --activation [tanh|tanh_pos|tanh_streched]
+                                  Which loss we want to use for the optimisation  [required]
+  --target FLOAT                  Target lyapunov vector
+  --tOns FLOAT                    Step size between two consecutive QR facto
+  --tSim INTEGER                  Length of the simulation [tau]
+  --g FLOAT                       Synaptic distribution parameter  [required]
+  --n_epochs INTEGER              Number of epochs used
+  --lr FLOAT                      Learning rate used
+  --train_weights BOOLEAN         Optimizition on the weights
+  --train_shifts BOOLEAN          Optimizition on the shitfs
+  --train_gains BOOLEAN           Optimizition on the gains
+  --help                          Show this message and exit.
+```
+### D.4 train_flybrain_rnn
+```bash
+ % train_flybrain_model --help
+Usage: train_flybrain_model [OPTIONS]
+
+Options:
+  --n_samples, --n_samples INTEGER
+                                  Number of sample used, (default:1)
+                                  [required]
+  --nLE INTEGER                   Number of Lyapunov exponent used  [required]
+  --loss [l2|MSE]                 Which loss we want to use for the optimisation  [required]
+  --ROI TEXT                      Which ROI, we would like to use  [required]
+  --activation [tanh_pos|tanh_streched]
+                                  Which loss we want to use for the
+                                  optimisation  [required]
+  --target FLOAT                  Target lyapunov vector
+  --tOns FLOAT                    Step size between two consecutive QR facto
+  --tSim INTEGER                  Length of the simulation [tau]
+  --n_epochs INTEGER              Number of epochs used
+  --lr FLOAT                      Learning rate used
+  --help                          Show this message and exit.
+```
 ## E. Installation
 
 - Clone the repo
