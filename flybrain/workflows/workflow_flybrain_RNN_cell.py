@@ -3,6 +3,7 @@ import os
 import click
 import numpy as np
 
+import flybrain.connectome as connectome
 import flybrain.functional as functional
 import flybrain.model as model
 import flybrain.utils as utils
@@ -12,17 +13,24 @@ from flybrain.training import train_RD_RNN
 @click.command()
 @click.option(
     "--n_samples",
-    "--n_samples",
     type=int,
-    required=True,
-    help="Number of sample used, (default:1)",
+    default=1,
+    required=False,
+    help="Number of sample used",
 )
-@click.option("--nLE", type=int, required=True, help="Number of Lyapunov exponent used")
 @click.option(
-    "--loss",
-    type=click.Choice(["l2", "MSE"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
+    "--nle",
+    type=int,
+    required=False,
+    default=1,
+    help="Number of Lyapunov exponent used",
+)
+@click.option(
+    "--subpopulation",
+    type=click.Choice(["cell_fibers", "neurotransmitter"]),
+    required=False,
+    default="neurotransmitter",
+    help="Which features would you like to use to define the subpopulation",
 )
 @click.option(
     "--ROI",
@@ -34,14 +42,16 @@ from flybrain.training import train_RD_RNN
 @click.option(
     "--activation",
     type=click.Choice(["tanh_pos", "tanh_streched"]),
-    required=True,
+    required=False,
+    default="tanh_pos",
     help="Which loss we want to use for the optimisation",
 )
 @click.option(
-    "--subpopulation",
-    type=click.Choice(["cell_fiber", "neurotransmitter"]),
-    required=True,
-    help="Which features would you like to use to define the subpopulation",
+    "--loss",
+    type=click.Choice(["l2", "MSE"]),
+    required=False,
+    default="l2",
+    help="Which loss we want to use for the optimisation",
 )
 @click.option(
     "--target", type=float, required=False, default=0.0, help="Target lyapunov vector"
@@ -66,7 +76,7 @@ from flybrain.training import train_RD_RNN
 @click.option(
     "--lr", type=float, required=False, default=0.01, help="Learning rate used"
 )
-def run_training_flybrain_RNN(
+def run_training_flybrain_pop(
     n_samples: int = 1,
     subpopulation: str = "neurotransmitter",
     nle: int = 1,
@@ -76,12 +86,30 @@ def run_training_flybrain_RNN(
     tsim: int = 200,
     n_epochs: int = 100,
     lr: float = 0.01,
-    roi: str = "EllipsoidBody",
+    roi: str = "EB",
     activation: str = "tanh_pos",
     dt: float = 0.1,
 ):
-    """Pipeline to train a RNN constrained on the flybrain connectome and where the acti
-    vations functions are share across cell types"""
+    """
+    Pipeline to train an RNN model constrained on the flybrain connectome.
+
+    Parameters:
+        n_samples (int): Number of samples to use for training.
+        subpopulation (str): Defines subpopulation feature (choices: 'cell_fiber' or 'neurotransmitter').
+        nle (int): Number of Lyapunov exponents to compute.
+        loss (str): Loss function to use, either 'l2' or 'MSE'.
+        target (float): Target Lyapunov vector.
+        tons (float): Step size between consecutive QR factorizations.
+        tsim (int): Simulation length (in tau).
+        n_epochs (int): Number of training epochs.
+        lr (float): Learning rate.
+        roi (str): Region of interest for model data, default is "EB".
+        activation (str): Activation function type.
+        dt (float): Simulation time step.
+
+    Returns:
+        None
+    """
     # Set up paths
     np.random.seed(30)
     ROOT = utils.get_root()
@@ -99,20 +127,18 @@ def run_training_flybrain_RNN(
         "tanh_pos": functional.tanh_positive(),
         "tanh_strech": functional.tanh_strech(),
     }[activation]
-    ROI = {"EB": "ellipsoid_body"}[roi]
+
     experiment_name = (
-        f"{activation_func.name()}_ROI_{roi}_Weights{False}_Shifts{True}_"
+        f"{activation_func.name()}_ROI_{roi}_Subpop_{subpopulation}_Weights{False}_Shifts{True}_"
         f"Gains{True}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
         f"Tons{tons}_Tsim{tsim}_dt{dt}"
     )
 
     training_loss, training_maxlambda, spectrum = [], [], []
-
     for sample in range(n_samples):
         # Create model
-        ROI_data = utils.load_flybrain(ROI=ROI, types=subpopulation)
-
-        W, C = utils.get_Normalize_Connectivity(
+        ROI_data = connectome.load_flybrain(ROI=roi, types=subpopulation)
+        W, C = connectome.normalize_connectome(
             W=ROI_data["weights"], C=ROI_data["connectivity"]
         )
         c0 = np.random.normal(0.0, 1.0, W.shape[0])
@@ -123,8 +149,7 @@ def run_training_flybrain_RNN(
             activation_function=activation_func,
             cell_types_vector=ROI_data["types"],
         )
-
-        run_name = f"{experiment_name}_Sample{sample}_SubpopTypes{subpopulation}"
+        run_name = f"{experiment_name}_Sample{sample}"
 
         # Train model
         train_RD_RNN(

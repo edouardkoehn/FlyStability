@@ -247,7 +247,6 @@ def load_flybrain(ROI: str = "EB", types: str = "neurotransmitter"):
     C = np.where(W > 0, 1, np.where(W < 0, 0, 0))
     C = np.matmul(neuroTransmitter_sign, C)
 
-    print(np.load(os.path.join(general_path, "nid_scc.npy")))
     if types == "neurotransmitter":
         with open(
             os.path.join(general_path, "neurotransmitter_assignments.pkl"), "rb"
@@ -289,7 +288,7 @@ def sinkhorn_knopp(A, max_iter=10, tol=1e-6, epsilon=1e-10):
     return A
 
 
-def Normalize_Connectome(W, C):
+def normalize_connectome(W, C):
     """Simple method to normalize the W matrix"""
     C_inhib = copy.deepcopy(C)
     C_inhib[np.where(C > 0)] = 0

@@ -3,6 +3,7 @@ import os
 import click
 import numpy as np
 
+import flybrain.connectome as connectome
 import flybrain.functional as functional
 import flybrain.model as model
 import flybrain.utils as utils
@@ -11,7 +12,6 @@ from flybrain.training import train_RD_RNN
 
 @click.command()
 @click.option(
-    "--n_samples",
     "--n_samples",
     type=int,
     required=True,
@@ -101,8 +101,10 @@ def run_training_flybrain_RNN(
 
     for sample in range(n_samples):
         # Create model
-        W, C = utils.load_flybrain(ROI=ROI)
-        W, C = utils.get_Normalize_Connectivity(W=W, C=C)
+        ROI_data = connectome.load_flybrain(ROI=ROI, types="Neurotransmitter")
+        W, C = connectome.normalize_connectome(
+            W=ROI_data["weights"], C=ROI_data["connectivity"]
+        )
         c0 = np.random.normal(0.0, 1.0, W.shape[0])
         rnn = model.RNN(
             connectivity_matrix=C,
@@ -110,7 +112,6 @@ def run_training_flybrain_RNN(
             initial_condition=c0,
             activation_function=activation_func,
         )
-
         run_name = f"{experiment_name}_Sample{sample}"
 
         # Train model
