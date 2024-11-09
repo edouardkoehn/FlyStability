@@ -17,7 +17,7 @@ from flybrain.training import train_RD_RNN
     required=True,
     help="Number of sample used, (default:1)",
 )
-@click.option("--nLE", type=int, required=True, help="Number of Lyapunov exponent used")
+@click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
 @click.option(
     "--loss",
     type=click.Choice(["l2", "MSE"]),
@@ -90,7 +90,7 @@ def run_training_flybrain_RNN(
         "tanh_pos": functional.tanh_positive(),
         "tanh_strech": functional.tanh_strech(),
     }[activation]
-    ROI = {"EB": "ellipsoid_body"}[roi]
+
     experiment_name = (
         f"{activation_func.name()}_ROI_{roi}_Weights{False}_Shifts{True}_"
         f"Gains{True}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
@@ -101,7 +101,7 @@ def run_training_flybrain_RNN(
 
     for sample in range(n_samples):
         # Create model
-        ROI_data = connectome.load_flybrain(ROI=ROI, types="Neurotransmitter")
+        ROI_data = connectome.load_flybrain(ROI=roi, types="Neurotransmitter")
         W, C = connectome.normalize_connectome(
             W=ROI_data["weights"], C=ROI_data["connectivity"]
         )
