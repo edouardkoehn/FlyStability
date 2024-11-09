@@ -20,7 +20,7 @@ from flybrain.training import train_RD_RNN
     required=True,
     help="Number of sample used, (default:1)",
 )
-@click.option("--nLE", type=int, required=True, help="Number of Lyapunov exponent used")
+@click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
 @click.option(
     "--loss",
     type=click.Choice(["l2", "MSE"]),
@@ -37,14 +37,14 @@ from flybrain.training import train_RD_RNN
     "--target", type=float, required=False, default=0.0, help="Target lyapunov vector"
 )
 @click.option(
-    "--tOns",
+    "--tons",
     type=float,
     required=False,
     default=0.2,
     help="Step size between two consecutive QR facto",
 )
 @click.option(
-    "--tSim",
+    "--tsim",
     type=int,
     required=False,
     default=200,
