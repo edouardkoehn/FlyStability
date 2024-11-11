@@ -3,15 +3,15 @@
 # Define parameters
 n=100
 n_samples=5
-loss="l2"
-target=0.0
+loss="MSE"
+target=-0.5
 tons=0.2
 tsim=200
-n_epochs=1
+n_epochs=100
 lr=0.01
-train_weights="True"
-train_gains="False"
-train_shifts="False"
+train_weights="False"
+train_gains="True"
+train_shifts="True"
 activation="tanh_pos"
 g=1  # Define the value for the synaptic distribution parameter
 

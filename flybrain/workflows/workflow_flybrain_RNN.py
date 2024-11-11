@@ -25,7 +25,7 @@ from flybrain.training import train_RD_RNN
     help="Which loss we want to use for the optimisation",
 )
 @click.option(
-    "--ROI",
+    "--roi",
     type=str,
     required=True,
     default="EB",
@@ -41,14 +41,14 @@ from flybrain.training import train_RD_RNN
     "--target", type=float, required=False, default=0.0, help="Target lyapunov vector"
 )
 @click.option(
-    "--tOns",
+    "--tons",
     type=float,
     required=False,
     default=0.2,
     help="Step size between two consecutive QR facto",
 )
 @click.option(
-    "--tSim",
+    "--tsim",
     type=int,
     required=False,
     default=200,
@@ -69,7 +69,7 @@ def run_training_flybrain_RNN(
     tsim: int = 200,
     n_epochs: int = 100,
     lr: float = 0.01,
-    roi: str = "EllipsoidBody",
+    roi: str = "EB",
     activation: str = "tanh_pos",
     dt: float = 0.1,
 ):
