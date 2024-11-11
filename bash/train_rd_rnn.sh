@@ -3,8 +3,8 @@
 # Define parameters
 n=100
 n_samples=5
-loss="MSE"
-target=-0.5
+loss="l2"
+target=-0.
 tons=0.2
 tsim=200
 n_epochs=100
@@ -12,8 +12,8 @@ lr=0.01
 train_weights="False"
 train_gains="True"
 train_shifts="True"
-activation="tanh_pos"
-g=1  # Define the value for the synaptic distribution parameter
+activation="tanh_streched"
+g=1.5  # Define the value for the synaptic distribution parameter
 
 # Loop over different nle values
 for nle in 1 10 50

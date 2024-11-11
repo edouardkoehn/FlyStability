@@ -9,7 +9,7 @@ tsim=300
 n_epochs=300
 lr=0.01
 activation="tanh_pos"
-pop='neurotransmitter' #'cell_fibers'
+pop= 'cell_fibers' #'neurotransmitter' #'cell_fibers'
 roi='EB'  # Define the value for the synaptic distribution parameter
 
 # Loop over different nle values
