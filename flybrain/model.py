@@ -86,6 +86,7 @@ class RNN:
         }
         self.cell_types = [types_2_index[f"{type}"] for type in self.cell_types]
         self.types = torch.tensor(self.cell_types, dtype=torch.int, requires_grad=False)
+
         self.gains = (
             gains_vector
             if gains_vector is not None
@@ -150,13 +151,13 @@ class RNN:
         - The function relies on `self.default_constructor` to initialize the model with loaded parameters.
         """
         # Load matrices and parameters from files
-        W = torch.load(os.path.join(path_to_matrix, "W.pt"))
-        C = torch.load(os.path.join(path_to_matrix, "C.pt"))
-        H = torch.load(os.path.join(path_to_matrix, "H.pt"))
-        H_0 = torch.load(os.path.join(path_to_matrix, "H_0.pt"))
-        gains = torch.load(os.path.join(path_to_matrix, "gains.pt"))
-        shifts = torch.load(os.path.join(path_to_matrix, "shifts.pt"))
-        types = torch.load(os.path.join(path_to_matrix, "types.pt"))
+        W = torch.load(os.path.join(path_to_matrix, "W.pt")).detach().numpy()
+        C = torch.load(os.path.join(path_to_matrix, "C.pt")).detach().numpy()
+        H = torch.load(os.path.join(path_to_matrix, "H.pt")).detach().numpy()
+        H_0 = torch.load(os.path.join(path_to_matrix, "H0.pt")).numpy()
+        gains = torch.load(os.path.join(path_to_matrix, "gains.pt")).detach().numpy()
+        shifts = torch.load(os.path.join(path_to_matrix, "shifts.pt")).detach().numpy()
+        types = torch.load(os.path.join(path_to_matrix, "types.pt")).detach().numpy()
 
         # Select activation function based on input string
         activation_function = {
@@ -172,7 +173,6 @@ class RNN:
             initial_condition=H_0,
             gains_vector=gains,
             shifts_vector=shifts,
-            shifts=shifts,
             cell_types_vector=types,
             activation_function=activation_function,
         )
@@ -370,7 +370,7 @@ class RNN:
         torch.save(self.W, os.path.join(model_name, "W.pt"))
         torch.save(self.C, os.path.join(model_name, "C.pt"))
         torch.save(self.H, os.path.join(model_name, "H.pt"))
-        torch.save(self.H_0, os.path.join(model_name, "H0pt"))
+        torch.save(self.H_0, os.path.join(model_name, "H0.pt"))
         torch.save(self.gains, os.path.join(model_name, "gains.pt"))
         torch.save(self.shifts, os.path.join(model_name, "shifts.pt"))
         torch.save(self.types, os.path.join(model_name, "types.pt"))
