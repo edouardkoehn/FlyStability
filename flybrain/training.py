@@ -145,6 +145,7 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
+    print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
 
