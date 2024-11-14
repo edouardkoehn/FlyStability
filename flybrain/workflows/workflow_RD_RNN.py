@@ -15,21 +15,24 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--n_samples",
-    "--n_samples",
     type=int,
     required=True,
     help="Number of sample used, (default:1)",
 )
 @click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
+@click.option("--g", type=float, required=True, help="Synaptic distribution parameter")
 @click.option(
-    "--loss",
-    type=click.Choice(["l2", "MSE"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
+    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
     "--activation",
     type=click.Choice(["tanh", "tanh_pos", "tanh_streched"]),
+    required=True,
+    help="Which loss we want to use for the optimisation",
+)
+@click.option(
+    "--loss",
+    type=click.Choice(["l2", "MSE"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -49,13 +52,6 @@ from flybrain.training import train_RD_RNN
     required=False,
     default=200,
     help="Length of the simulation [tau]",
-)
-@click.option("--g", type=float, required=True, help="Synaptic distribution parameter")
-@click.option(
-    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
-)
-@click.option(
-    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
 )
 @click.option(
     "--train_weights",
@@ -77,6 +73,9 @@ from flybrain.training import train_RD_RNN
     required=False,
     default=False,
     help="Optimizition on the gains",
+)
+@click.option(
+    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
 )
 @click.option(
     "--early_stopping",

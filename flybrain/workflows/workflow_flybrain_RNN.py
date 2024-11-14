@@ -25,6 +25,9 @@ from flybrain.training import train_RD_RNN
     help="Which loss we want to use for the optimisation",
 )
 @click.option(
+    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
+)
+@click.option(
     "--roi",
     type=str,
     required=True,
@@ -59,9 +62,6 @@ from flybrain.training import train_RD_RNN
     required=False,
     default=200,
     help="Length of the simulation [tau]",
-)
-@click.option(
-    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
     "--lr", type=float, required=False, default=0.01, help="Learning rate used"
