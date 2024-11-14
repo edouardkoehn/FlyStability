@@ -26,6 +26,7 @@ def train_RD_RNN(
     lr: float,
     run_name: str,
     run_type="rd_RNN",
+    early_stopping_crit: float = 1e-03,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -43,6 +44,7 @@ def train_RD_RNN(
     - train_gains (bool): Whether to train gain parameters.
     - lr (float): Learning rate for the optimizer.
     - run_name (str): Name for the current training run, used for saving logs and rnn.
+    - early_stoppping_crit (flaot): Value of the loss at wich we can do an early stopping
     """
     rnn_model = rnn_model
     # Set up paths for saving logs and rnns
@@ -146,16 +148,10 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
-        if (epoch > 20) & (error[-1] > 10**-4):
+
+        if (epoch > 20) & (error[-1] <= early_stopping_crit):
             print(f"Early stopping-Epoch:{epoch}-loss:{loss}")
-            breaks
-        """
-        if epoch > 20:
-            early_stopping, stopping = compute_early_stopping(error[: epoch + 1])
-            if early_stopping:
-                print(f"Early stopping-Epoch:{epoch}-Stopping:{stopping}")
-                break
-        """
+            break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
