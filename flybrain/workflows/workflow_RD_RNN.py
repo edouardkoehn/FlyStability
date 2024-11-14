@@ -115,7 +115,7 @@ def run_training_RD_RNN(
     }[activation]
 
     experiment_name = (
-        f"{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
+        f"Debeug_{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
         f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
         f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}"
     )
