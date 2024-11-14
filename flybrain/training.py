@@ -138,12 +138,12 @@ def train_RD_RNN(
             ) as f:
                 json.dump(
                     {
-                        "training_loss": error.tolist(),
-                        "training_lambda_max": maxLambda_hist.tolist(),
+                        "training_loss": error[:epoch].tolist(),
+                        "training_lambda_max": maxLambda_hist[:epoch].tolist(),
                         "spectrum": spectrum_full.tolist(),
-                        "grad_gains": grad_norm_gains.tolist(),
-                        "grad_shifts": grad_norm_shifts.tolist(),
-                        "grad_weights": grad_norm_weights.tolist(),
+                        "grad_gains": grad_norm_gains[:epoch].tolist(),
+                        "grad_shifts": grad_norm_shifts[:epoch].tolist(),
+                        "grad_weights": grad_norm_weights[:epoch].tolist(),
                     },
                     f,
                 )
@@ -183,13 +183,15 @@ def set_optimizer(
     return torch.optim.Adam(parameters, lr=lr)
 
 
+"""
+Not used
 def compute_early_stopping(
     y_signal,
     kernel_size: int = 20,
     criterion_variational: float = 10**-4,
     criterion_value: float = 10**-4,
 ):
-    """
+
     Determines the early stopping point in a signal based on smoothed derivative
     and absolute value criteria.
 
@@ -204,7 +206,7 @@ def compute_early_stopping(
     Returns:
         tuple: A tuple containing a boolean indicating if an early stopping point was found,
             and the index of the stopping point or the length of the signal if not found.
-    """
+
     y_smoothed = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=0)
     y_derivative = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=1)
 
@@ -221,3 +223,4 @@ def compute_early_stopping(
         return True, stopping_val[0][0]
     else:
         return None, y_signal.shape[0]
+ """

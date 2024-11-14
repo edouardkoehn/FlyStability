@@ -75,7 +75,7 @@ from flybrain.training import train_RD_RNN
     help="Optimizition on the gains",
 )
 @click.option(
-    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
+    "--lr", type=float, required=False, default=1e-3, help="Learning rate used"
 )
 @click.option(
     "--early_stopping",
@@ -122,7 +122,7 @@ def run_training_RD_RNN(
     }[activation]
 
     experiment_name = (
-        f"Debeug_{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
+        f"{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
         f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
         f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}"
     )
