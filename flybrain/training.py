@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 import torch
+from scipy.signal import savgol_filter
 
 import flybrain.functional as functional
 import flybrain.model as Model
@@ -145,6 +146,11 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
+        if epoch > 20:
+            early_stopping, stopping = compute_early_stopping(error[: epoch + 1])
+            if early_stopping:
+                print(f"Early stopping-Epoch:{epoch}-Stopping:{stopping}")
+                break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
@@ -174,3 +180,43 @@ def set_optimizer(
         parameters.append(rnn.gains)
     # Initialize and return the optimizer with the selected parameters
     return torch.optim.Adam(parameters, lr=lr)
+
+
+def compute_early_stopping(
+    y_signal,
+    kernel_size: int = 20,
+    criterion_variational: float = 10**-4,
+    criterion_value: float = 10**-4,
+):
+    """
+    Determines the early stopping point in a signal based on smoothed derivative
+    and absolute value criteria.
+
+    Args:
+        y_signal (array-like): The input signal to analyze.
+        kernel_size (int, optional): Size of the kernel used for convolution. Defaults to 20.
+        criterion_variational (float, optional): Threshold for stopping based on the smoothed
+            derivative of the signal. Defaults to 10**-4.
+        criterion_value (float, optional): Threshold for stopping based on the absolute value
+            of the smoothed signal. Defaults to 10**-4.
+
+    Returns:
+        tuple: A tuple containing a boolean indicating if an early stopping point was found,
+            and the index of the stopping point or the length of the signal if not found.
+    """
+    y_smoothed = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=0)
+    y_derivative = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=1)
+
+    kernel = np.ones(kernel_size)
+    y_conv = np.convolve(y_derivative, kernel, mode="valid")
+
+    stopping_varia = np.where(np.abs(y_conv) < criterion_variational)
+    stopping_val = np.where(np.abs(y_smoothed) < criterion_value)
+
+    if len(stopping_varia[0]) > 0:
+        return True, stopping_varia[0][0]
+
+    elif len(stopping_val[0]) > 0:
+        return True, stopping_val[0][0]
+    else:
+        return None, y_signal.shape[0]
