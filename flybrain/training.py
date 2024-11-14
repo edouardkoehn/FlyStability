@@ -146,11 +146,13 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
+        """
         if epoch > 20:
             early_stopping, stopping = compute_early_stopping(error[: epoch + 1])
             if early_stopping:
                 print(f"Early stopping-Epoch:{epoch}-Stopping:{stopping}")
                 break
+        """
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
