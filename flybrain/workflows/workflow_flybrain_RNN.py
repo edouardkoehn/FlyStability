@@ -38,6 +38,12 @@ from flybrain.training import train_RD_RNN
     help="Which loss we want to use for the optimisation",
 )
 @click.option(
+    "--loss",
+    type=click.Choice(["l2", "MSE"]),
+    required=True,
+    help="Which loss we want to use for the optimisation",
+)
+@click.option(
     "--target", type=float, required=False, default=0.0, help="Target lyapunov vector"
 )
 @click.option(
