@@ -26,11 +26,7 @@ from flybrain.training import train_RD_RNN
     help="Number of Lyapunov exponent used",
 )
 @click.option(
-    "--subpopulation",
-    type=click.Choice(["cell_fibers", "neurotransmitter"]),
-    required=False,
-    default="neurotransmitter",
-    help="Which features would you like to use to define the subpopulation",
+    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
     "--roi",
@@ -38,6 +34,13 @@ from flybrain.training import train_RD_RNN
     required=True,
     default="EB",
     help="Which ROI, we would like to use",
+)
+@click.option(
+    "--subpopulation",
+    type=click.Choice(["cell_fibers", "neurotransmitter"]),
+    required=False,
+    default="neurotransmitter",
+    help="Which features would you like to use to define the subpopulation",
 )
 @click.option(
     "--activation",
@@ -71,10 +74,14 @@ from flybrain.training import train_RD_RNN
     help="Length of the simulation [tau]",
 )
 @click.option(
-    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
+    "--lr", type=float, required=False, default=0.01, help="Learning rate used"
 )
 @click.option(
-    "--lr", type=float, required=False, default=0.01, help="Learning rate used"
+    "--early_stopping",
+    type=float,
+    required=False,
+    default=1e-3,
+    help="Value of the loss at wich the optimization would stop",
 )
 def run_training_flybrain_pop(
     n_samples: int = 1,
@@ -89,6 +96,7 @@ def run_training_flybrain_pop(
     roi: str = "EB",
     activation: str = "tanh_pos",
     dt: float = 0.1,
+    early_stopping: float = 1e-3,
 ):
     """
     Pipeline to train an RNN model constrained on the flybrain connectome.
@@ -166,6 +174,7 @@ def run_training_flybrain_pop(
             lr=lr,
             run_name=run_name,
             run_type="flybrain_RNN_cell",
+            early_stopping_crit=early_stopping,
         )
 
         # Load logs and store results

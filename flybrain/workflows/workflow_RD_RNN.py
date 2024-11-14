@@ -15,21 +15,24 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--n_samples",
-    "--n_samples",
     type=int,
     required=True,
     help="Number of sample used, (default:1)",
 )
 @click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
+@click.option("--g", type=float, required=True, help="Synaptic distribution parameter")
 @click.option(
-    "--loss",
-    type=click.Choice(["l2", "MSE"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
+    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
 @click.option(
     "--activation",
     type=click.Choice(["tanh", "tanh_pos", "tanh_streched"]),
+    required=True,
+    help="Which loss we want to use for the optimisation",
+)
+@click.option(
+    "--loss",
+    type=click.Choice(["l2", "MSE"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -49,13 +52,6 @@ from flybrain.training import train_RD_RNN
     required=False,
     default=200,
     help="Length of the simulation [tau]",
-)
-@click.option("--g", type=float, required=True, help="Synaptic distribution parameter")
-@click.option(
-    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
-)
-@click.option(
-    "--lr", type=float, required=False, default=0.001, help="Learning rate used"
 )
 @click.option(
     "--train_weights",
@@ -78,6 +74,16 @@ from flybrain.training import train_RD_RNN
     default=False,
     help="Optimizition on the gains",
 )
+@click.option(
+    "--lr", type=float, required=False, default=1e-3, help="Learning rate used"
+)
+@click.option(
+    "--early_stopping",
+    type=float,
+    required=False,
+    default=1e-3,
+    help="Value of the loss at wich the optimization would stop",
+)
 def run_training_RD_RNN(
     n: int = 100,
     n_samples: int = 1,
@@ -94,6 +100,7 @@ def run_training_RD_RNN(
     train_gains: bool = False,
     activation: str = "tanh_pos",
     dt: float = 0.1,
+    early_stopping: float = 1e-3,
 ):
     # Set up paths
     np.random.seed(30)
@@ -115,7 +122,7 @@ def run_training_RD_RNN(
     }[activation]
 
     experiment_name = (
-        f"Debeug_{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
+        f"{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
         f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
         f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}"
     )
@@ -152,6 +159,7 @@ def run_training_RD_RNN(
             lr=lr,
             run_name=run_name,
             run_type="rd_RNN",
+            early_stopping_crit=early_stopping,
         )
 
         # Load logs and store results

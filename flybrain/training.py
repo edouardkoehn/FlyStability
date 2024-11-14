@@ -26,6 +26,7 @@ def train_RD_RNN(
     lr: float,
     run_name: str,
     run_type="rd_RNN",
+    early_stopping_crit: float = 1e-03,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -43,6 +44,7 @@ def train_RD_RNN(
     - train_gains (bool): Whether to train gain parameters.
     - lr (float): Learning rate for the optimizer.
     - run_name (str): Name for the current training run, used for saving logs and rnn.
+    - early_stoppping_crit (flaot): Value of the loss at wich we can do an early stopping
     """
     rnn_model = rnn_model
     # Set up paths for saving logs and rnns
@@ -136,26 +138,20 @@ def train_RD_RNN(
             ) as f:
                 json.dump(
                     {
-                        "training_loss": error.tolist(),
-                        "training_lambda_max": maxLambda_hist.tolist(),
+                        "training_loss": error[:epoch].tolist(),
+                        "training_lambda_max": maxLambda_hist[:epoch].tolist(),
                         "spectrum": spectrum_full.tolist(),
-                        "grad_gains": grad_norm_gains.tolist(),
-                        "grad_shifts": grad_norm_shifts.tolist(),
-                        "grad_weights": grad_norm_weights.tolist(),
+                        "grad_gains": grad_norm_gains[:epoch].tolist(),
+                        "grad_shifts": grad_norm_shifts[:epoch].tolist(),
+                        "grad_weights": grad_norm_weights[:epoch].tolist(),
                     },
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
-        if (epoch > 20) & (error[-1] > 10**-4):
+
+        if (epoch > 20) & (error[-1] <= early_stopping_crit):
             print(f"Early stopping-Epoch:{epoch}-loss:{loss}")
-            breaks
-        """
-        if epoch > 20:
-            early_stopping, stopping = compute_early_stopping(error[: epoch + 1])
-            if early_stopping:
-                print(f"Early stopping-Epoch:{epoch}-Stopping:{stopping}")
-                break
-        """
+            break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
@@ -187,13 +183,15 @@ def set_optimizer(
     return torch.optim.Adam(parameters, lr=lr)
 
 
+"""
+Not used
 def compute_early_stopping(
     y_signal,
     kernel_size: int = 20,
     criterion_variational: float = 10**-4,
     criterion_value: float = 10**-4,
 ):
-    """
+
     Determines the early stopping point in a signal based on smoothed derivative
     and absolute value criteria.
 
@@ -208,7 +206,7 @@ def compute_early_stopping(
     Returns:
         tuple: A tuple containing a boolean indicating if an early stopping point was found,
             and the index of the stopping point or the length of the signal if not found.
-    """
+
     y_smoothed = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=0)
     y_derivative = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=1)
 
@@ -225,3 +223,4 @@ def compute_early_stopping(
         return True, stopping_val[0][0]
     else:
         return None, y_signal.shape[0]
+ """
