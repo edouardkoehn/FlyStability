@@ -26,10 +26,10 @@
 #   --help                          Show this message and exit.
 # Define parameters
 n=100
-n_samples=5
+n_samples=3
 
 g=0.8  # Define the value for the synaptic distribution parameter
-n_epochs=1000
+n_epochs=500
 
 activation="tanh_pos"
 loss="MSE"
@@ -42,7 +42,7 @@ train_weights="False"
 train_gains="True"
 train_shifts="True"
 
-lr=0.01
+lr=0.1
 early_crit=1e-3
 
 # Loop over different nle values
