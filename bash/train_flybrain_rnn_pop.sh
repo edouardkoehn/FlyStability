@@ -23,8 +23,8 @@
 # Define parameters
 n_samples=1
 n_epochs=1000
-roi='PB'
-pop= 'neurotransmitter' #'cell_fibers'
+roi='EB'
+pop='neurotransmitter' #'cell_fibers'
 
 activation="tanh_pos" #"tanh_streched"
 loss="MSE"
@@ -38,9 +38,9 @@ early_crit=1e-3
 
 
 # Loop over different nle values
-for nle in 10 50
+for nle in 1 10 50
 do
-    command="train_flybrain_pop --n_samples $n_samples  --nle $nle --subpopulation neurotransmitter --roi $roi   --loss $loss --activation $activation --target $target --tons $tons --tsim $tsim --n_epochs $n_epochs --lr $lr --early_stopping $early_crit"
+    command="train_flybrain_pop --n_samples $n_samples  --nle $nle --subpopulation $pop --roi $roi   --loss $loss --activation $activation --target $target --tons $tons --tsim $tsim --n_epochs $n_epochs --lr $lr --early_stopping $early_crit"
     echo $command
     $command
 done
