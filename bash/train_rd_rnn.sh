@@ -28,27 +28,27 @@
 n=100
 n_samples=3
 
-g=0.8  # Define the value for the synaptic distribution parameter
+g=1  # Define the value for the synaptic distribution parameter
 n_epochs=500
 
 activation="tanh_pos"
 loss="MSE"
-target=0.
+target=100
 
 tons=0.2
 tsim=200
 
-train_weights="False"
-train_gains="True"
-train_shifts="True"
+train_weights="True"
+train_gains="False"
+train_shifts="False"
 
 lr=0.1
 early_crit=1e-3
 
 # Loop over different nle values
-for nle in 75 100
+for nle in 1
 do
     command="train_rd_model --n $n --n_samples $n_samples --nle $nle --g $g --n_epochs $n_epochs  --activation $activation --loss $loss --target $target --tons $tons --tsim $tsim   --train_weights $train_weights --train_shifts $train_shifts --train_gains $train_gains  --lr $lr --early_stopping $early_crit"
     echo $command
-    $command
+    #$command
 done

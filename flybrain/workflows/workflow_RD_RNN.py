@@ -32,7 +32,7 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--loss",
-    type=click.Choice(["l2", "MSE"]),
+    type=click.Choice(["l2", "MSE", "Sinai"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -114,7 +114,16 @@ def run_training_RD_RNN(
         os.makedirs(path, exist_ok=True)
 
     # Experiment parameters
-    loss_func = {"l2": functional.l2_norm(target), "MSE": functional.mse(target)}[loss]
+    loss_func = {
+        "l2": functional.l2_norm(target),
+        "MSE": functional.mse(target),
+        "Sinai": functional.sinai_entropy(),
+    }[loss]
+    if loss == "Sinai":
+        maximize_options = True
+    else:
+        maximize_options = False
+
     activation_func = {
         "tanh": functional.tanh(),
         "tanh_pos": functional.tanh_positive(),
@@ -160,6 +169,7 @@ def run_training_RD_RNN(
             run_name=run_name,
             run_type="rd_RNN",
             early_stopping_crit=early_stopping,
+            maximize_options=maximize_options,
         )
 
         # Load logs and store results

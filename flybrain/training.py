@@ -27,6 +27,7 @@ def train_RD_RNN(
     run_name: str,
     run_type="rd_RNN",
     early_stopping_crit: float = 1e-03,
+    maximize_options: bool = False,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -63,6 +64,7 @@ def train_RD_RNN(
         train_weights=train_weights,
         train_gains=train_gains,
         train_shifts=train_shifts,
+        maximize=maximize_options,
     )
     optimizer.zero_grad()
 
@@ -149,7 +151,7 @@ def train_RD_RNN(
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
 
-        if (epoch > 20) & (error[epoch] <= early_stopping_crit):
+        if (epoch > 20) & (np.abs(error[epoch]) <= early_stopping_crit):
             print(f"Early stopping-Epoch:{epoch}-loss:{loss}")
             break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
@@ -157,7 +159,12 @@ def train_RD_RNN(
 
 
 def set_optimizer(
-    rnn, lr: float, train_weights: bool, train_shifts: bool, train_gains: bool
+    rnn,
+    lr: float,
+    train_weights: bool,
+    train_shifts: bool,
+    train_gains: bool,
+    maximize: bool = False,
 ):
     """
     Configures and returns an Adam optimizer based on selected training parameters.
@@ -180,7 +187,7 @@ def set_optimizer(
     if train_gains:
         parameters.append(rnn.gains)
     # Initialize and return the optimizer with the selected parameters
-    return torch.optim.Adam(parameters, lr=lr)
+    return torch.optim.Adam(parameters, lr=lr, maximize=maximize)
 
 
 """
