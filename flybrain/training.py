@@ -27,6 +27,7 @@ def train_RD_RNN(
     run_name: str,
     run_type="rd_RNN",
     early_stopping_crit: float = 1e-03,
+    maximize_options: bool = False,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -63,6 +64,7 @@ def train_RD_RNN(
         train_weights=train_weights,
         train_gains=train_gains,
         train_shifts=train_shifts,
+        maximize=maximize_options,
     )
     optimizer.zero_grad()
 

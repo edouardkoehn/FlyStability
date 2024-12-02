@@ -72,3 +72,14 @@ class mse(loss):
     def call(self, spectrum: torch.tensor):
         target = torch.ones(spectrum.shape[0], requires_grad=False) * self.target_value
         return torch.sum((spectrum - target) ** 2) / spectrum.shape[0]
+
+
+class sinai_entropy(loss):
+    def __init__(self):
+        super().__init__(0.0)
+
+    def name(self):
+        return f"Entropy"
+
+    def call(self, spectrum: torch.tensor):
+        return torch.sum(torch.nn.functional.relu(spectrum))

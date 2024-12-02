@@ -24,8 +24,8 @@
 
 # Define parameters
 n_samples=1
-n_epochs=1000
-roi='EB'
+n_epochs=500
+roi='AB'
 
 activation="tanh_pos"
 loss="MSE"
@@ -34,11 +34,11 @@ target=0.0
 tons=0.2
 tsim=200
 
-lr=0.1
+lr=0.01
 early_crit=1e-3
 
 # Loop over different nle values
-for nle in 100
+for nle in 1 10 25 50
 do
     command="train_flybrain_full --roi $roi --n_samples $n_samples --nle $nle --loss $loss --activation $activation --target $target --tons $tons --tsim $tsim --n_epochs $n_epochs --lr $lr --early_stopping $early_crit"
     echo $command
