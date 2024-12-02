@@ -151,7 +151,7 @@ def train_RD_RNN(
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
 
-        if (epoch > 20) & (error[epoch] <= early_stopping_crit):
+        if (epoch > 20) & (np.abs(error[epoch]) <= early_stopping_crit):
             print(f"Early stopping-Epoch:{epoch}-loss:{loss}")
             break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
@@ -159,7 +159,12 @@ def train_RD_RNN(
 
 
 def set_optimizer(
-    rnn, lr: float, train_weights: bool, train_shifts: bool, train_gains: bool
+    rnn,
+    lr: float,
+    train_weights: bool,
+    train_shifts: bool,
+    train_gains: bool,
+    maximize: bool = False,
 ):
     """
     Configures and returns an Adam optimizer based on selected training parameters.
@@ -182,7 +187,7 @@ def set_optimizer(
     if train_gains:
         parameters.append(rnn.gains)
     # Initialize and return the optimizer with the selected parameters
-    return torch.optim.Adam(parameters, lr=lr)
+    return torch.optim.Adam(parameters, lr=lr, maximize=maximize)
 
 
 """

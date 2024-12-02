@@ -82,4 +82,6 @@ class sinai_entropy(loss):
         return f"Entropy"
 
     def call(self, spectrum: torch.tensor):
-        return torch.sum(torch.nn.functional.relu(spectrum))
+        return torch.sum(torch.nn.functional.relu(spectrum)) - torch.sum(
+            torch.nn.functional.relu(-spectrum)
+        )
