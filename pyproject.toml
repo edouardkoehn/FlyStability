@@ -24,9 +24,6 @@ black = "^21.12b0"
 pre-commit = "^2.17.0"
 flake8 = "^4.0.1"
 
-
-
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -43,6 +40,7 @@ exclude = '''
   | \.mypy_cache
 )\
 '''
+
 # Scripts of your module
 [tool.poetry.scripts]
 lyapu_convergence="flybrain.workflows:workflow_lyapunov_convergence.run_convergence_lyapunov"

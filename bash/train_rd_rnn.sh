@@ -32,7 +32,7 @@ g=1  # Define the value for the synaptic distribution parameter
 n_epochs=500
 
 activation="tanh_pos"
-loss="MSE"
+loss="Entropy"
 target=100
 
 tons=0.2

@@ -42,5 +42,5 @@ for nle in 1 10 25 50
 do
     command="train_flybrain_full --roi $roi --n_samples $n_samples --nle $nle --loss $loss --activation $activation --target $target --tons $tons --tsim $tsim --n_epochs $n_epochs --lr $lr --early_stopping $early_crit"
     echo $command
-    $command
+    #$command
 done
