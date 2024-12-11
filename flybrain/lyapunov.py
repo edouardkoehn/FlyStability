@@ -123,3 +123,23 @@ class Lyapunov:
 
         LS = LS / t
         return LS
+
+
+def get_attractor_dimensionality(spectrum: np.array):
+    """Method to compute the strange attractors dimensionality from the network dynamics"""
+    cumulative_sum = 0
+    max_k = 0
+
+    for i, val in enumerate(spectrum, start=1):
+        cumulative_sum += val
+        if cumulative_sum >= 0:
+            max_k = i  # Update max_k when the condition holds
+        else:
+            break  # Stop as soon as the condition is violated
+
+    return max_k
+
+
+def get_entropy(spectrum: np.array):
+    """Method to compute the Sinai-Kolmogorov entropie from the network dynamics"""
+    return torch.sum(torch.nn.ReLU()(spectrum))
