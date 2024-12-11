@@ -30,7 +30,7 @@ from flybrain.lyapunov import Lyapunov
 )
 @click.option(
     "--parameter",
-    type=click.Choice(["weights", "shifts", "gains", "activations"]),
+    type=click.Choice(["weights", "shifts", "gains"]),
     multiple=True,
     required=False,
     default=["weights"],
