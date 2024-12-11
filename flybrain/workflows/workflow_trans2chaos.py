@@ -151,9 +151,9 @@ def find_transition_2_chaos(
     ax.set_xticks(range(len(gs)))
     ax.set_xticklabels([f"{g:.1f}" for g in gs])
     ax.set_ylabel(r"$\lambda_{max}$")
-    ax.set_xlabel(r"$g$")
+    ax.set_xlabel(r"$\sigma$")
     ax.set_title(
-        f"Transition to Chaos\n{RNN.name()}, {'_'.join(parameter)} drawn from $N(0, g/\\sqrt{{N}})$",
+        f"Transition to Chaos\n{RNN.name()}, {'_'.join(parameter)} drawn from $N(0, \sigma/\\sqrt{{N}})$",
         fontsize=12,  # Adjust fontsize as needed
         wrap=True,  # Ensures wrapping if layout constraints exist
     )
