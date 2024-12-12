@@ -22,7 +22,7 @@ from flybrain.lyapunov import Lyapunov
 @click.option(
     "--m_g",
     type=int,
-    default=5,
+    default=7,
     help="Number of g values between gmin and gmax (default: 5)",
 )
 @click.option(
@@ -52,12 +52,12 @@ def find_transition_2_chaos(
     gmin: float,
     gmax: float,
     m_g: int,
-    N: int = 400,
+    N: int = 1000,
     n_samples: int = 10,
     tSim: int = 200,
     dt: float = 0.1,
     tOns: float = 0.2,
-    activation: str = "tanh",
+    activation: str = "pos",
     parameter: list = ["weights"],
     save: bool = True,
 ):
@@ -81,6 +81,7 @@ def find_transition_2_chaos(
     W_default, C_default = utils.construct_Random_Matrix_simple(
         n_neurons=N, coupling=1.0, showplot=False
     )
+
     # Loop over each g value and generate n_samples models
     for i, g in enumerate(gs):
         for sample in range(n_samples):
