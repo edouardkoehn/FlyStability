@@ -1,15 +1,15 @@
 #!/bin/bash
-# train_flybrain_full [OPTIONS]
+#Usage: train_rd_model [OPTIONS]
 
 # Options:
+#   --n INTEGER                     Size of the model, number of neurons used
+#                                   [required]
 #   --n_samples INTEGER             Number of sample used, (default:1)
 #                                   [required]
 #   --nle INTEGER                   Number of Lyapunov exponent used  [required]
-#   --loss [l2|MSE]                 Which loss we want to use for the
-#                                   optimisation  [required]
+#   --g FLOAT                       Synaptic distribution parameter  [required]
 #   --n_epochs INTEGER              Number of epochs used
-#   --roi TEXT                      Which ROI, we would like to use  [required]
-#   --activation [tanh_pos|tanh_streched]
+#   --activation [tanh|tanh_pos|tanh_streched]
 #                                   Which loss we want to use for the
 #                                   optimisation  [required]
 #   --loss [l2|MSE]                 Which loss we want to use for the
@@ -17,30 +17,42 @@
 #   --target FLOAT                  Target lyapunov vector
 #   --tons FLOAT                    Step size between two consecutive QR facto
 #   --tsim INTEGER                  Length of the simulation [tau]
+#   --train_weights BOOLEAN         Optimizition on the weights
+#   --train_shifts BOOLEAN          Optimizition on the shitfs
+#   --train_gains BOOLEAN           Optimizition on the gains
 #   --lr FLOAT                      Learning rate used
 #   --early_stopping FLOAT          Value of the loss at wich the optimization
 #                                   would stop
 #   --help                          Show this message and exit.
-
 # Define parameters
-n_samples=1
-n_epochs=500
-roi='AB'
+
+
+
+n_samples=10
+
+g=1 # Define the value for the synaptic distribution parameter
+n_epochs=400
 
 activation="tanh_pos"
 loss="MSE"
-target=0.0
+target=100.
 
 tons=0.2
 tsim=200
 
-lr=0.01
-early_crit=1e-3
+train_weights="True"
+train_gains="False"
+train_shifts="False"
 
+lr=0.1
+percente_nle=0.1
 # Loop over different nle values
-for nle in 1 10 25 50
+for n in 25 50 100 200 400 500
 do
-    command="train_flybrain_full --roi $roi --n_samples $n_samples --nle $nle --loss $loss --activation $activation --target $target --tons $tons --tsim $tsim --n_epochs $n_epochs --lr $lr --early_stopping $early_crit"
+    nle=$(( n * 10 / 100 ))
+    echo $nle
+    echo $n
+    command="train_rd_model --n $n --n_samples $n_samples --nle $nle --g $g --n_epochs $n_epochs  --activation $activation --loss $loss --target $target --tons $tons --tsim $tsim   --train_weights $train_weights --train_shifts $train_shifts --train_gains $train_gains  --lr $lr
     echo $command
     #$command
 done
