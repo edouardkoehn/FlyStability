@@ -77,13 +77,6 @@ from flybrain.training import train_RD_RNN
 @click.option(
     "--lr", type=float, required=False, default=1e-3, help="Learning rate used"
 )
-@click.option(
-    "--early_stopping",
-    type=float,
-    required=False,
-    default=1e-3,
-    help="Value of the loss at wich the optimization would stop",
-)
 def run_training_RD_RNN(
     n: int = 100,
     n_samples: int = 1,
@@ -100,7 +93,6 @@ def run_training_RD_RNN(
     train_gains: bool = False,
     activation: str = "tanh_pos",
     dt: float = 0.1,
-    early_stopping: float = 1e-3,
 ):
     # Set up paths
     np.random.seed(30)
@@ -168,7 +160,6 @@ def run_training_RD_RNN(
             lr=lr,
             run_name=run_name,
             run_type="rd_RNN",
-            early_stopping_crit=early_stopping,
             maximize_options=maximize_options,
         )
 

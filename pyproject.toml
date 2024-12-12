@@ -24,9 +24,6 @@ black = "^21.12b0"
 pre-commit = "^2.17.0"
 flake8 = "^4.0.1"
 
-
-
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -43,10 +40,12 @@ exclude = '''
   | \.mypy_cache
 )\
 '''
+
 # Scripts of your module
 [tool.poetry.scripts]
 lyapu_convergence="flybrain.workflows:workflow_lyapunov_convergence.run_convergence_lyapunov"
 transition_2_chaos = "flybrain.workflows:workflow_trans2chaos.find_transition_2_chaos"
+spectrum = "flybrain.workflows:workflow_spectrum_characterisation.spectrum_characterization"
 train_rd_model = "flybrain.workflows:workflow_RD_RNN.run_training_RD_RNN"
 train_flybrain_full = "flybrain.workflows:workflow_flybrain_RNN.run_training_flybrain_RNN"
 train_flybrain_pop="flybrain.workflows:workflow_flybrain_RNN_cell.run_training_flybrain_pop"
