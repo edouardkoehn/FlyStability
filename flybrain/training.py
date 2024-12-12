@@ -26,7 +26,6 @@ def train_RD_RNN(
     lr: float,
     run_name: str,
     run_type="rd_RNN",
-    early_stopping_crit: float = 1e-03,
     maximize_options: bool = False,
 ):
     """
@@ -100,16 +99,16 @@ def train_RD_RNN(
         # Gradient clipping and storing gradient norms if applicable
         if train_shifts:
             torch.nn.utils.clip_grad_norm_(
-                [rnn_model.shifts], max_norm=100, norm_type=2.0
+                [rnn_model.shifts], max_norm=2000, norm_type=2.0
             )
             grad_norm_shifts[epoch] = torch.norm(rnn_model.shifts.grad)
         if train_gains:
             torch.nn.utils.clip_grad_norm_(
-                [rnn_model.gains], max_norm=100, norm_type=2.0
+                [rnn_model.gains], max_norm=2000, norm_type=2.0
             )
             grad_norm_gains[epoch] = torch.norm(rnn_model.gains.grad)
         if train_weights:
-            torch.nn.utils.clip_grad_norm_([rnn_model.W], max_norm=100, norm_type=2.0)
+            torch.nn.utils.clip_grad_norm_([rnn_model.W], max_norm=2000, norm_type=2.0)
             grad_norm_weights[epoch] = torch.norm(rnn_model.W.grad)
         optimizer.step()
 
@@ -146,14 +145,12 @@ def train_RD_RNN(
                         "grad_gains": grad_norm_gains[:epoch].tolist(),
                         "grad_shifts": grad_norm_shifts[:epoch].tolist(),
                         "grad_weights": grad_norm_weights[:epoch].tolist(),
+                        "time_training[s]": f"{time.time() - t0:.2f}",
                     },
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
 
-        if (epoch > 20) & (np.abs(error[epoch]) <= early_stopping_crit):
-            print(f"Early stopping-Epoch:{epoch}-loss:{loss}")
-            break
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
@@ -188,46 +185,3 @@ def set_optimizer(
         parameters.append(rnn.gains)
     # Initialize and return the optimizer with the selected parameters
     return torch.optim.Adam(parameters, lr=lr, maximize=maximize)
-
-
-"""
-Not used
-def compute_early_stopping(
-    y_signal,
-    kernel_size: int = 20,
-    criterion_variational: float = 10**-4,
-    criterion_value: float = 10**-4,
-):
-
-    Determines the early stopping point in a signal based on smoothed derivative
-    and absolute value criteria.
-
-    Args:
-        y_signal (array-like): The input signal to analyze.
-        kernel_size (int, optional): Size of the kernel used for convolution. Defaults to 20.
-        criterion_variational (float, optional): Threshold for stopping based on the smoothed
-            derivative of the signal. Defaults to 10**-4.
-        criterion_value (float, optional): Threshold for stopping based on the absolute value
-            of the smoothed signal. Defaults to 10**-4.
-
-    Returns:
-        tuple: A tuple containing a boolean indicating if an early stopping point was found,
-            and the index of the stopping point or the length of the signal if not found.
-
-    y_smoothed = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=0)
-    y_derivative = savgol_filter(y_signal, window_length=10, polyorder=3, deriv=1)
-
-    kernel = np.ones(kernel_size)
-    y_conv = np.convolve(y_derivative, kernel, mode="valid")
-
-    stopping_varia = np.where(np.abs(y_conv) < criterion_variational)
-    stopping_val = np.where(np.abs(y_smoothed) < criterion_value)
-
-    if len(stopping_varia[0]) > 0:
-        return True, stopping_varia[0][0]
-
-    elif len(stopping_val[0]) > 0:
-        return True, stopping_val[0][0]
-    else:
-        return None, y_signal.shape[0]
- """
