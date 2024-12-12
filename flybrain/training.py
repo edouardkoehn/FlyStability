@@ -200,6 +200,6 @@ def set_optimizer(
         selected_params = [all_params[i] for i in selected_indices]
     else:
         selected_params = selected_params  # Use all parameters if M is None or invalid
-    print(len(selected_params))
+
     # Initialize and return the optimizer with the selected parameters
     return torch.optim.Adam(parameters, lr=lr, maximize=maximize)

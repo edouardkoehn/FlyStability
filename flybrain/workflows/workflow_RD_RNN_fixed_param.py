@@ -168,7 +168,7 @@ def run_training_RD_RNN_fixed_param(
             train_gains=train_gains,
             lr=lr,
             run_name=run_name,
-            run_type="rd_RNN",
+            run_type="rd_RNN_fixed_param",
             maximize_options=maximize_options,
             number_para_used=amount_param_used,
         )
