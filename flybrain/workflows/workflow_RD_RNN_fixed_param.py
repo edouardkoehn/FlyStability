@@ -106,9 +106,9 @@ def run_training_RD_RNN_fixed_param(
     np.random.seed(30)
     ROOT = utils.get_root()
     output_paths = {
-        "logs": os.path.join(ROOT, "data", "logs", "rd_RNN"),
-        "fig": os.path.join(ROOT, "data", "fig", "rd_RNN"),
-        "model": os.path.join(ROOT, "data", "models", "rd_RNN"),
+        "logs": os.path.join(ROOT, "data", "logs", "rd_RNN_fixed_param"),
+        "fig": os.path.join(ROOT, "data", "fig", "rd_RNN_fixed_param"),
+        "model": os.path.join(ROOT, "data", "models", "rd_RNN_fixed_param"),
     }
     for path in output_paths.values():
         os.makedirs(path, exist_ok=True)
@@ -134,7 +134,7 @@ def run_training_RD_RNN_fixed_param(
     experiment_name = (
         f"{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
         f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
-        f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}"
+        f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}_Param{amount_param_used}"
     )
 
     training_loss, training_maxlambda, spectrum = [], [], []
