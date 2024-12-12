@@ -1,10 +1,10 @@
 import json
 import os
+import random
 import time
 
 import numpy as np
 import torch
-from scipy.signal import savgol_filter
 
 import flybrain.functional as functional
 import flybrain.model as Model
@@ -27,6 +27,7 @@ def train_RD_RNN(
     run_name: str,
     run_type="rd_RNN",
     maximize_options: bool = False,
+    number_para_used=None,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -64,6 +65,7 @@ def train_RD_RNN(
         train_gains=train_gains,
         train_shifts=train_shifts,
         maximize=maximize_options,
+        M=number_para_used,
     )
     optimizer.zero_grad()
 
@@ -162,6 +164,7 @@ def set_optimizer(
     train_shifts: bool,
     train_gains: bool,
     maximize: bool = False,
+    M: int = None,
 ):
     """
     Configures and returns an Adam optimizer based on selected training parameters.
@@ -171,6 +174,7 @@ def set_optimizer(
     - train_weights (bool): If True, include rnn weights in optimization.
     - train_shifts (bool): If True, include shift parameters in optimization.
     - train_gains (bool): If True, include gain parameters in optimization.
+    - M (int): number of parameter to use
 
     Returns:
     - torch.optim.Adam: Configured optimizer for selected parameters.
@@ -183,5 +187,19 @@ def set_optimizer(
         parameters.append(rnn.shifts)
     if train_gains:
         parameters.append(rnn.gains)
+
+    all_params = []
+    for param in parameters:
+        all_params.extend(
+            param.view(-1)
+        )  # Flatten each parameter tensor into a 1D list
+
+    # Randomly select M parameters if M is specified and valid
+    if M is not None and M < len(all_params):
+        selected_indices = random.sample(range(len(all_params)), M)
+        selected_params = [all_params[i] for i in selected_indices]
+    else:
+        selected_params = selected_params  # Use all parameters if M is None or invalid
+    print(len(selected_params))
     # Initialize and return the optimizer with the selected parameters
     return torch.optim.Adam(parameters, lr=lr, maximize=maximize)

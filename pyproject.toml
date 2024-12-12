@@ -47,5 +47,6 @@ lyapu_convergence="flybrain.workflows:workflow_lyapunov_convergence.run_converge
 transition_2_chaos = "flybrain.workflows:workflow_trans2chaos.find_transition_2_chaos"
 spectrum = "flybrain.workflows:workflow_spectrum_characterisation.spectrum_characterization"
 train_rd_model = "flybrain.workflows:workflow_RD_RNN.run_training_RD_RNN"
+train_rd_model_fixed_param = "flybrain.workflows:workflow_RD_RNN_fixed_param.run_training_RD_RNN_fixed_param"
 train_flybrain_full = "flybrain.workflows:workflow_flybrain_RNN.run_training_flybrain_RNN"
 train_flybrain_pop="flybrain.workflows:workflow_flybrain_RNN_cell.run_training_flybrain_pop"
