@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "flybrain"#name of your module
 version = "0.0.1"#version of your module
-description = "Clean implementation of the Flybrain Stability project"#description of your modeél
+description = "Flystability project"#description of your modeél
 authors = ["Edouard Koehn"]
 license = "MIT License"
 
