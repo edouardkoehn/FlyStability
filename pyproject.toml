@@ -2,7 +2,7 @@
 name = "flybrain"#name of your module
 version = "0.0.1"#version of your module
 description = "Flystability project"#description of your modeél
-authors = ["Edouard Koehn, edouar.koehn@epfl.ch"]
+authors = ["Edouard Koehn"]
 license = "MIT License"
 
 # Main dependencies
