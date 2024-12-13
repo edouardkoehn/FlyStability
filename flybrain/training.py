@@ -164,20 +164,22 @@ def set_optimizer(
     train_shifts: bool,
     train_gains: bool,
     maximize: bool = False,
-    M: int = None,
+    M: int = None,  # New argument for the number of parameters to exclude
 ):
     """
-    Configures and returns an Adam optimizer based on selected training parameters.
+    Configures and returns an Adam optimizer based on selected training parameters,
+    with a binary mask applied to exclude M randomly selected parameters.
 
     Parameters:
     - lr (float): Learning rate for the optimizer.
     - train_weights (bool): If True, include rnn weights in optimization.
     - train_shifts (bool): If True, include shift parameters in optimization.
     - train_gains (bool): If True, include gain parameters in optimization.
-    - M (int): number of parameter to use
+    - maximize (bool): If True, maximize the objective (default is minimize).
+    - M (int): Number of parameters to randomly exclude from optimization.
 
     Returns:
-    - torch.optim.Adam: Configured optimizer for selected parameters.
+    - torch.optim.Adam: Configured optimizer for masked parameters.
     """
     # Collect parameters for optimization
     parameters = []
@@ -187,19 +189,32 @@ def set_optimizer(
         parameters.append(rnn.shifts)
     if train_gains:
         parameters.append(rnn.gains)
-
-    all_params = []
+    """
+    # Create masks for each parameter tensor
+    masked_params = []
     for param in parameters:
-        all_params.extend(
-            param.view(-1)
-        )  # Flatten each parameter tensor into a 1D list
+        # Flatten the parameter tensor into a 1D array
+        num_elements = param.numel()
+        mask = torch.ones_like(param)
 
-    # Randomly select M parameters if M is specified and valid
-    if M is not None and M < len(all_params):
-        selected_indices = random.sample(range(len(all_params)), M)
-        selected_params = [all_params[i] for i in selected_indices]
-    else:
-        selected_params = selected_params  # Use all parameters if M is None or invalid
+        if M is not None and M > 0 and M < num_elements:
+            # Generate M unique random indices to set to zero
+            indices = random.sample(range(0,num_elements), M)
+            print('al',indices)
+            mask_flat = mask.view(-1)  # Flatten the mask tensor
+            for idx in indices:
+                mask_flat[idx] = 0  # Set the selected indices to zero
+            mask = mask_flat.view_as(param)  # Reshape to original shape
 
-    # Initialize and return the optimizer with the selected parameters
+        # Apply the mask to the parameter tensor
+        #print('before_param',param)
+        #print('before_mask',mask)
+        masked_param = torch.mul(param, mask)
+        #print('after',masked_param)
+        masked_params.append(masked_param)
+    #print(len(masked_params))
+    print(masked_params)
+    print(parameters)
+    # Initialize and return the optimizer with the masked parameters
+    """
     return torch.optim.Adam(parameters, lr=lr, maximize=maximize)
