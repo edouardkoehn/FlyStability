@@ -26,7 +26,6 @@
 #   --help                          Show this message and exit.
 # Define parameters
 
-
 n=100
 n_samples=10
 
@@ -44,12 +43,13 @@ train_weights="True"
 train_gains="False"
 train_shifts="False"
 
+number_param="N"
+
 lr=0.1
 
 # Loop over different nle values
 for nle in 1 10 25 50 75 100
-do
-    command="train_rd_model --n $n --n_samples $n_samples --nle $nle --g $g --n_epochs $n_epochs  --activation $activation --loss $loss --target $target --tons $tons --tsim $tsim   --train_weights $train_weights --train_shifts $train_shifts --train_gains $train_gains  --lr $lr"
+    command="train_rd_model_fixed_param --n $n --n_samples $n_samples --nle $nle --g $g --n_epochs $n_epochs  --activation $activation --loss $loss --target $target --tons $tons --tsim $tsim   --train_weights $train_weights --train_shifts $train_shifts --train_gains $train_gains  --lr $lr --number_param $number_param"
     echo $command
     $command
 done
