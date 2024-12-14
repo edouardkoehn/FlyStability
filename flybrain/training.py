@@ -207,10 +207,10 @@ def train_RD_RNN_with_fixed_param(
     number_para_used: list = ["N2", "N", "N"],
 ):
     """
-    Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
+    Trains a recurrent neural network (RNN) model with random connectivity, utilizing Lyapunov exponents as feedback.
 
     Parameters:
-    - rnn (rnn.RNN): RNN rnn instance with random connectivity matrix.
+    - rnn_model (Model.RNN): RNN instance with a random connectivity matrix.
     - loss (functional.loss): Loss function to minimize during training.
     - nLE (int): Number of Lyapunov exponents to compute.
     - N_epoch (int): Number of training epochs.
@@ -219,19 +219,26 @@ def train_RD_RNN_with_fixed_param(
     - dt (float): Time step for Lyapunov spectrum calculation.
     - train_weights (bool): Whether to train weight matrix `W`.
     - train_shifts (bool): Whether to train shift parameters.
-    - train_gains (bo
+    - train_gains (bool): Whether to train gain parameters.
+    - lr (float): Learning rate for optimization.
+    - run_name (str): Name of the training run for logging.
+    - run_type (str): Type of run (default: "rd_RNN").
+    - maximize_options (bool): Whether to maximize rather than minimize the objective function.
+    - number_para_used (list): Parameter constraints for weights, gains, and shifts.
+
+    Returns:
+    None
     """
-    rnn_model = rnn_model
-    # Set up paths for saving logs and rnns
+    # Set up paths for saving logs and models
     ROOT_PATH = utils.get_root()
     output_logs_path = os.path.join(ROOT_PATH, "data", "logs", run_type)
     output_rnn_path = os.path.join(ROOT_PATH, "data", "models", run_type)
 
-    # Configure the rnn for training with specified parameters
+    # Configure the RNN for training with specified parameters
     rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
     rnn_model.reset_states()
 
-    # Create the mask for the different value
+    # Create masks for training constraints
     mask_weights = torch.ones(rnn_model.W.shape)
     mask_gains = torch.ones(rnn_model.gains.shape)
     mask_shifts = torch.ones(rnn_model.shifts.shape)
@@ -245,7 +252,7 @@ def train_RD_RNN_with_fixed_param(
     if train_shifts and number_para_used[2] != rnn_model.N:
         mask_shifts = create_mask(rnn_model.shifts, rnn_model.N, number_para_used[2])
 
-    # Set up optimizer based on selected training parameters
+    # Set up optimizer
     optimizer = set_optimizer(
         rnn_model,
         lr=lr,
@@ -256,9 +263,8 @@ def train_RD_RNN_with_fixed_param(
     )
     optimizer.zero_grad()
 
+    # Initialize variables for logging
     c0 = rnn_model.H_0.detach().numpy()
-
-    # Initialize logging arrays for errors, spectrum, and gradient norms
     error = np.zeros(N_epoch)
     spectrum_hist = np.zeros((nLE, N_epoch))
     maxLambda_hist = np.zeros(N_epoch)
@@ -266,15 +272,14 @@ def train_RD_RNN_with_fixed_param(
     grad_norm_shifts = np.zeros(N_epoch)
     grad_norm_weights = np.zeros(N_epoch)
 
-    # Training loop with logging and saving progress
     t0 = time.time()
     print(f"{run_name}: {time.time() - t0:.2f} - Starting training...")
 
-    # Initialize and return the optimizer with the selected parameters
+    # Enable anomaly detection for debugging
     torch.autograd.set_detect_anomaly(True)
 
+    # Training loop
     for epoch in range(N_epoch):
-        # Reset rnn states and optimizer gradients
         rnn_model.set_states(c0)
 
         # Compute Lyapunov spectrum and loss
@@ -285,47 +290,47 @@ def train_RD_RNN_with_fixed_param(
         optimizer.zero_grad()
         loss_val.backward()
 
-        # Gradient clipping and storing gradient norms if applicable
+        # Apply gradient clipping and masks
         if train_shifts:
             torch.nn.utils.clip_grad_norm_(
                 [rnn_model.shifts], max_norm=2000, norm_type=2.0
             )
-            rnn_model.shifts.grad = torch.mul(rnn_model.shifts.grad, mask_shifts)
+            rnn_model.shifts.grad = torch.mul(mask_shifts, rnn_model.shifts.grad)
             grad_norm_shifts[epoch] = torch.norm(rnn_model.shifts.grad)
 
         if train_gains:
             torch.nn.utils.clip_grad_norm_(
                 [rnn_model.gains], max_norm=2000, norm_type=2.0
             )
-            rnn_model.gains.grad = torch.mul(rnn_model.gains.grad, mask_gains)
+            rnn_model.gains.grad = torch.mul(mask_gains, rnn_model.gains.grad)
             grad_norm_gains[epoch] = torch.norm(rnn_model.gains.grad)
 
         if train_weights:
             torch.nn.utils.clip_grad_norm_([rnn_model.W], max_norm=2000, norm_type=2.0)
-            rnn_model.W.grad = torch.mul(rnn_model.W.grad, mask_weights)
+            rnn_model.W.grad = torch.mul(mask_weights, rnn_model.W.grad)
             grad_norm_weights[epoch] = torch.norm(rnn_model.W.grad)
 
         optimizer.step()
 
-        # Log error and spectrum history
+        # Log training metrics
         error[epoch] = loss_val.detach().item()
         spectrum_hist[:, epoch] = spectrum.detach().numpy()
         maxLambda_hist[epoch] = spectrum.max().item()
 
-        # Periodically log progress and save data
         if epoch % 1 == 0 or epoch == N_epoch - 1:
             print(
                 f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
                 end=" ",
             )
             if train_shifts:
-                print(f" - Shifts_norm: {grad_norm_shifts[epoch]:.3f}", end=" ")
+                print(f"- Shifts_norm: {grad_norm_shifts[epoch]:.3f}", end=" ")
             if train_gains:
-                print(f" - Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
+                print(f"- Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
             if train_weights:
-                print(f" - Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
+                print(f"- Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
             print()
-            # Save detailed spectrum logs every 10 epochs
+
+            # Save logs and model periodically
             spectrum_full = Lyapunov().compute_spectrum(
                 rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=rnn_model.N - 1
             )
@@ -334,12 +339,12 @@ def train_RD_RNN_with_fixed_param(
             ) as f:
                 json.dump(
                     {
-                        "training_loss": error[:epoch].tolist(),
-                        "training_lambda_max": maxLambda_hist[:epoch].tolist(),
+                        "training_loss": error[: epoch + 1].tolist(),
+                        "training_lambda_max": maxLambda_hist[: epoch + 1].tolist(),
                         "spectrum": spectrum_full.tolist(),
-                        "grad_gains": grad_norm_gains[:epoch].tolist(),
-                        "grad_shifts": grad_norm_shifts[:epoch].tolist(),
-                        "grad_weights": grad_norm_weights[:epoch].tolist(),
+                        "grad_gains": grad_norm_gains[: epoch + 1].tolist(),
+                        "grad_shifts": grad_norm_shifts[: epoch + 1].tolist(),
+                        "grad_weights": grad_norm_weights[: epoch + 1].tolist(),
                         "time_training[s]": f"{time.time() - t0:.2f}",
                     },
                     f,
