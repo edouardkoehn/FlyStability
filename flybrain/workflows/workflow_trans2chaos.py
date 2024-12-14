@@ -64,7 +64,8 @@ def find_transition_2_chaos(
     """Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum."""
     parameter = list(parameter)
     # Define output paths and create directory if it doesn't exist
-    ROOT_PATH = utils.get_root()
+    #ROOT_PATH = utils.get_root()
+    ROOT_PATH="/pscratch/sd/e/ekoehn/FlyStability"
     output_fig_path = os.path.join(ROOT_PATH, "data", "fig", "transition_2_chaos")
     os.makedirs(output_fig_path, exist_ok=True)
 

@@ -65,7 +65,8 @@ def run_training_RD_RNN_fixed_param(
     np.random.seed(30)
 
     # Generate output paths
-    ROOT = utils.get_root()
+    #ROOT = utils.get_root()
+    ROOT="/pscratch/sd/e/ekoehn/FlyStability"
     output_paths = {
         name: os.path.join(ROOT, "data", name, "rd_RNN_fixed_param")
         for name in ["logs", "fig", "models"]

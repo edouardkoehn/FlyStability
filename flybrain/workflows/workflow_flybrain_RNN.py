@@ -89,7 +89,8 @@ def run_training_flybrain_RNN(
 ):
     # Set up paths
     np.random.seed(30)
-    ROOT = utils.get_root()
+    #ROOT = utils.get_root()
+    ROOT="/pscratch/sd/e/ekoehn/FlyStability"
     output_paths = {
         "logs": os.path.join(ROOT, "data", "logs", "flybrain_RNN"),
         "fig": os.path.join(ROOT, "data", "fig", "flybrain_RNN"),

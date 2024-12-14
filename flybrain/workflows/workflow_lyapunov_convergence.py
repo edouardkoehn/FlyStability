@@ -58,7 +58,8 @@ def run_convergence_lyapunov(
     """
     np.random.seed(10)  # Set random seed for reproducibility
     # Set the root path for outputs to avoid setting it repeatedly
-    ROOT_PATH = utils.get_root()
+    #ROOT_PATH = utils.get_root()
+    ROOT_PATH="/pscratch/sd/e/ekoehn/FlyStability"
     OUTPUT_FIG_PATH = os.path.join(ROOT_PATH, "data", "fig", "lyapunov_convergence")
     OUTPUT_LOGS_PATH = os.path.join(ROOT_PATH, "data", "logs", "lyapunov_convergence")
     os.makedirs(OUTPUT_FIG_PATH, exist_ok=True)

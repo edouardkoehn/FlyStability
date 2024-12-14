@@ -47,7 +47,8 @@ def train_RD_RNN(
     """
     rnn_model = rnn_model
     # Set up paths for saving logs and rnns
-    ROOT_PATH = utils.get_root()
+    #ROOT_PATH = utils.get_root()
+    ROOT_PATH="/pscratch/sd/e/ekoehn/FlyStability"
     output_logs_path = os.path.join(ROOT_PATH, "data", "logs", run_type)
     output_rnn_path = os.path.join(ROOT_PATH, "data", "models", run_type)
 
@@ -149,7 +150,7 @@ def train_RD_RNN(
                     f,
                 )
             rnn_model.save(os.path.join(output_rnn_path, run_name))
-
+            
     print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
     return
 
