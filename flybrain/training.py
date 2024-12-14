@@ -316,7 +316,7 @@ def train_RD_RNN_with_fixed_param(
         spectrum_hist[:, epoch] = spectrum.detach().numpy()
         maxLambda_hist[epoch] = spectrum.max().item()
 
-        if epoch % 1 == 0 or epoch == N_epoch - 1:
+        if epoch % 10 == 0 or epoch == N_epoch - 1:
             print(
                 f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
                 end=" ",
