@@ -6,7 +6,7 @@ import numpy as np
 import flybrain.functional as functional
 import flybrain.model as model
 import flybrain.utils as utils
-from flybrain.training import train_RD_RNN
+from flybrain.training import train_RD_RNN_with_fixed_param
 
 
 @click.command()
@@ -41,9 +41,10 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--number_param",
-    type=click.Choice(["N", "2N", "Auto"]),
+    type=int,
+    nargs=3,
     required=False,
-    default=100,
+    default=[100, 0, 0],
     help="Number of parameter to use for the opti",
 )
 @click.option(
@@ -99,7 +100,7 @@ def run_training_RD_RNN_fixed_param(
     train_shifts: bool = False,
     train_gains: bool = False,
     activation: str = "tanh_pos",
-    number_param: str = "N",
+    number_param: list = [100, 0, 0],
     dt: float = 0.1,
 ):
     # Set up paths
@@ -124,7 +125,11 @@ def run_training_RD_RNN_fixed_param(
     else:
         maximize_options = False
 
-    amount_param_used = {"N": n, "2N": 2 * n, "Auto": n}[number_param]
+    amount_param_used = [m for m in number_param]
+    assert (amount_param_used[0] <= n**2) & (amount_param_used[0] >= 0)
+    assert (amount_param_used[1] <= n) & (amount_param_used[1] >= 0)
+    assert (amount_param_used[2] <= n) & (amount_param_used[2] >= 0)
+
     activation_func = {
         "tanh": functional.tanh(),
         "tanh_pos": functional.tanh_positive(),
@@ -133,8 +138,9 @@ def run_training_RD_RNN_fixed_param(
 
     experiment_name = (
         f"{activation_func.name()}_Weights{train_weights}_Shifts{train_shifts}_"
-        f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
-        f"g{g}_Tons{tons}_Tsim{tsim}_dt{dt}_Param{amount_param_used}"
+        + f"Gains{train_gains}_N{n}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}"
+        + f"_g{g}_Tons{tons}_Tsim{tsim}_dt{dt}_"
+        + f"Param{'_'.join(map(str, amount_param_used))}"
     )
 
     training_loss, training_maxlambda, spectrum = [], [], []
@@ -155,7 +161,7 @@ def run_training_RD_RNN_fixed_param(
         run_name = f"{experiment_name}_Sample{sample}"
 
         # Train model
-        train_RD_RNN(
+        train_RD_RNN_with_fixed_param(
             rnn_model=rnn,
             loss=loss_func,
             nLE=nle,
