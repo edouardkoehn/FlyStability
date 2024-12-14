@@ -142,13 +142,15 @@ def run_training_RD_RNN_fixed_param(
         training_maxlambda.append(data["training_lambda_max"])
         spectrum.append(data["spectrum"])
 
-    # Plot results
-    utils.plot_losses(
-        os.path.join(output_paths["fig"], experiment_name),
-        training_loss,
-        training_maxlambda,
-    )
-    utils.plot_spectrum(os.path.join(output_paths["fig"], experiment_name), spectrum)
+        # Plot results
+        utils.plot_losses(
+            os.path.join(output_paths["fig"], experiment_name),
+            training_loss,
+            training_maxlambda,
+        )
+        utils.plot_spectrum(
+            os.path.join(output_paths["fig"], experiment_name), spectrum
+        )
 
 
 def validate_parameters(n, number_param):
