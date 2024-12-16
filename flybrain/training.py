@@ -1,6 +1,5 @@
 import json
 import os
-import random
 import time
 
 import numpy as np
@@ -27,7 +26,6 @@ def train_RD_RNN(
     run_name: str,
     run_type="rd_RNN",
     maximize_options: bool = False,
-    number_para_used=None,
 ):
     """
     Trains a recurrent neural network (RNN) rnn with random connectivity, utilizing Lyapunov exponents as feedback.
@@ -65,7 +63,6 @@ def train_RD_RNN(
         train_gains=train_gains,
         train_shifts=train_shifts,
         maximize=maximize_options,
-        M=number_para_used,
     )
     optimizer.zero_grad()
 
@@ -164,7 +161,6 @@ def set_optimizer(
     train_shifts: bool,
     train_gains: bool,
     maximize: bool = False,
-    M: int = None,  # New argument for the number of parameters to exclude
 ):
     """
     Configures and returns an Adam optimizer based on selected training parameters,
@@ -189,32 +185,189 @@ def set_optimizer(
         parameters.append(rnn.shifts)
     if train_gains:
         parameters.append(rnn.gains)
-    """
-    # Create masks for each parameter tensor
-    masked_params = []
-    for param in parameters:
-        # Flatten the parameter tensor into a 1D array
-        num_elements = param.numel()
-        mask = torch.ones_like(param)
-
-        if M is not None and M > 0 and M < num_elements:
-            # Generate M unique random indices to set to zero
-            indices = random.sample(range(0,num_elements), M)
-            print('al',indices)
-            mask_flat = mask.view(-1)  # Flatten the mask tensor
-            for idx in indices:
-                mask_flat[idx] = 0  # Set the selected indices to zero
-            mask = mask_flat.view_as(param)  # Reshape to original shape
-
-        # Apply the mask to the parameter tensor
-        #print('before_param',param)
-        #print('before_mask',mask)
-        masked_param = torch.mul(param, mask)
-        #print('after',masked_param)
-        masked_params.append(masked_param)
-    #print(len(masked_params))
-    print(masked_params)
-    print(parameters)
-    # Initialize and return the optimizer with the masked parameters
-    """
     return torch.optim.Adam(parameters, lr=lr, maximize=maximize)
+
+
+def train_RD_RNN_with_fixed_param(
+    rnn_model: Model.RNN,
+    loss: functional.loss,
+    nLE: int,
+    N_epoch: int,
+    tSim: int,
+    tONs: float,
+    dt: float,
+    train_weights: bool,
+    train_shifts: bool,
+    train_gains: bool,
+    lr: float,
+    run_name: str,
+    run_type="rd_RNN",
+    maximize_options: bool = False,
+    number_para_used: list = ["N2", "N", "N"],
+):
+    """
+    Trains a recurrent neural network (RNN) model with random connectivity, utilizing Lyapunov exponents as feedback.
+
+    Parameters:
+    - rnn_model (Model.RNN): RNN instance with a random connectivity matrix.
+    - loss (functional.loss): Loss function to minimize during training.
+    - nLE (int): Number of Lyapunov exponents to compute.
+    - N_epoch (int): Number of training epochs.
+    - tSim (int): Simulation time for each epoch.
+    - tONs (float): Time onset parameter for Lyapunov spectrum computation.
+    - dt (float): Time step for Lyapunov spectrum calculation.
+    - train_weights (bool): Whether to train weight matrix `W`.
+    - train_shifts (bool): Whether to train shift parameters.
+    - train_gains (bool): Whether to train gain parameters.
+    - lr (float): Learning rate for optimization.
+    - run_name (str): Name of the training run for logging.
+    - run_type (str): Type of run (default: "rd_RNN").
+    - maximize_options (bool): Whether to maximize rather than minimize the objective function.
+    - number_para_used (list): Parameter constraints for weights, gains, and shifts.
+
+    Returns:
+    None
+    """
+    # Set up paths for saving logs and models
+    ROOT_PATH = utils.get_root()
+    output_logs_path = os.path.join(ROOT_PATH, "data", "logs", run_type)
+    output_rnn_path = os.path.join(ROOT_PATH, "data", "models", run_type)
+
+    # Configure the RNN for training with specified parameters
+    rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
+    rnn_model.reset_states()
+
+    # Create masks for training constraints
+    mask_weights = torch.ones(rnn_model.W.shape)
+    mask_gains = torch.ones(rnn_model.gains.shape)
+    mask_shifts = torch.ones(rnn_model.shifts.shape)
+
+    if train_weights and number_para_used[0] != rnn_model.N**2:
+        mask_weights = create_mask(rnn_model.W, rnn_model.N**2, number_para_used[0])
+
+    if train_gains and number_para_used[1] != rnn_model.N:
+        mask_gains = create_mask(rnn_model.gains, rnn_model.N, number_para_used[1])
+
+    if train_shifts and number_para_used[2] != rnn_model.N:
+        mask_shifts = create_mask(rnn_model.shifts, rnn_model.N, number_para_used[2])
+
+    # Set up optimizer
+    optimizer = set_optimizer(
+        rnn_model,
+        lr=lr,
+        train_weights=train_weights,
+        train_gains=train_gains,
+        train_shifts=train_shifts,
+        maximize=maximize_options,
+    )
+    optimizer.zero_grad()
+
+    # Initialize variables for logging
+    c0 = rnn_model.H_0.detach().numpy()
+    error = np.zeros(N_epoch)
+    spectrum_hist = np.zeros((nLE, N_epoch))
+    maxLambda_hist = np.zeros(N_epoch)
+    grad_norm_gains = np.zeros(N_epoch)
+    grad_norm_shifts = np.zeros(N_epoch)
+    grad_norm_weights = np.zeros(N_epoch)
+
+    t0 = time.time()
+    print(f"{run_name}: {time.time() - t0:.2f} - Starting training...")
+
+    # Enable anomaly detection for debugging
+    torch.autograd.set_detect_anomaly(True)
+
+    # Training loop
+    for epoch in range(N_epoch):
+        rnn_model.set_states(c0)
+
+        # Compute Lyapunov spectrum and loss
+        spectrum = Lyapunov().compute_spectrum(
+            rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=nLE
+        )
+        loss_val = loss.call(spectrum)
+        optimizer.zero_grad()
+        loss_val.backward()
+
+        # Apply gradient clipping and masks
+        if train_shifts:
+            torch.nn.utils.clip_grad_norm_(
+                [rnn_model.shifts], max_norm=2000, norm_type=2.0
+            )
+            rnn_model.shifts.grad = torch.mul(mask_shifts, rnn_model.shifts.grad)
+            grad_norm_shifts[epoch] = torch.norm(rnn_model.shifts.grad)
+
+        if train_gains:
+            torch.nn.utils.clip_grad_norm_(
+                [rnn_model.gains], max_norm=2000, norm_type=2.0
+            )
+            rnn_model.gains.grad = torch.mul(mask_gains, rnn_model.gains.grad)
+            grad_norm_gains[epoch] = torch.norm(rnn_model.gains.grad)
+
+        if train_weights:
+            torch.nn.utils.clip_grad_norm_([rnn_model.W], max_norm=2000, norm_type=2.0)
+            rnn_model.W.grad = torch.mul(mask_weights, rnn_model.W.grad)
+            grad_norm_weights[epoch] = torch.norm(rnn_model.W.grad)
+
+        optimizer.step()
+
+        # Log training metrics
+        error[epoch] = loss_val.detach().item()
+        spectrum_hist[:, epoch] = spectrum.detach().numpy()
+        maxLambda_hist[epoch] = spectrum.max().item()
+
+        if epoch % 10 == 0 or epoch == N_epoch - 1:
+            print(
+                f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
+                end=" ",
+            )
+            if train_shifts:
+                print(f"- Shifts_norm: {grad_norm_shifts[epoch]:.3f}", end=" ")
+            if train_gains:
+                print(f"- Gains_norm: {grad_norm_gains[epoch]:.3f}", end=" ")
+            if train_weights:
+                print(f"- Weights_norm: {grad_norm_weights[epoch]:.3f}", end=" ")
+            print()
+
+            # Save logs and model periodically
+            spectrum_full = Lyapunov().compute_spectrum(
+                rnn_model, tSim=tSim, dt=dt, tONS=tONs, nLE=rnn_model.N - 1
+            )
+            with open(
+                os.path.join(output_logs_path, run_name + "_logs.json"), "w"
+            ) as f:
+                json.dump(
+                    {
+                        "training_loss": error[: epoch + 1].tolist(),
+                        "training_lambda_max": maxLambda_hist[: epoch + 1].tolist(),
+                        "spectrum": spectrum_full.tolist(),
+                        "grad_gains": grad_norm_gains[: epoch + 1].tolist(),
+                        "grad_shifts": grad_norm_shifts[: epoch + 1].tolist(),
+                        "grad_weights": grad_norm_weights[: epoch + 1].tolist(),
+                        "time_training[s]": f"{time.time() - t0:.2f}",
+                    },
+                    f,
+                )
+            rnn_model.save(os.path.join(output_rnn_path, run_name))
+
+    print(f"{run_name}: {time.time() - t0:.2f} - Training finished")
+    return
+
+
+def create_mask(tensor, total_params, num_params_to_keep):
+    """
+    Creates a binary mask for a tensor, where only `num_params_to_keep` parameters
+    remain active, and others are set to 0.
+    """
+    # Initialize the mask with ones
+    mask = torch.ones(total_params, dtype=torch.float32)
+
+    # Randomly set (total_params - num_params_to_keep) indices to 0
+    if num_params_to_keep < total_params:
+        indices_to_zero = np.random.choice(
+            total_params, size=total_params - num_params_to_keep, replace=False
+        )
+        mask[indices_to_zero] = 0
+
+    # Reshape the mask to match the tensor's shape
+    return mask.reshape(tensor.shape)
