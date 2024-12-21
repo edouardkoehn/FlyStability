@@ -95,7 +95,8 @@ def run_training_RD_RNN(
     dt: float = 0.1,
 ):
     # Set up paths
-    np.random.seed(30)
+    # np.random.seed(30)
+    np.random.seed(29)
     ROOT = utils.get_root()
     output_paths = {
         "logs": os.path.join(ROOT, "data", "logs", "rd_RNN"),

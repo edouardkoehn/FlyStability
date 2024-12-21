@@ -117,7 +117,7 @@ def train_RD_RNN(
         maxLambda_hist[epoch] = spectrum.max().item()
 
         # Periodically log progress and save data
-        if epoch % 1 == 0 or epoch == N_epoch - 1:
+        if epoch % 10 == 0 or epoch == N_epoch - 1:
             print(
                 f"{epoch}-Loss: {error[epoch]:.3f} - Lambda_max: {maxLambda_hist[epoch]:.3f}",
                 end=" ",
