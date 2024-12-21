@@ -32,7 +32,7 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--loss",
-    type=click.Choice(["l2", "MSE", "Sinai"]),
+    type=click.Choice(["l2", "MSE", "Sinai", "MSE_Custom"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -110,6 +110,7 @@ def run_training_RD_RNN(
         "l2": functional.l2_norm(target),
         "MSE": functional.mse(target),
         "Sinai": functional.sinai_entropy(),
+        "MSE_Custom": functional.mse_custom(),
     }[loss]
     if loss == "Sinai":
         maximize_options = True

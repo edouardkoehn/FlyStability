@@ -14,7 +14,7 @@ matplotlib = "^3.9.2"
 seaborn = "^0.13.2"
 click = "^8.1.7"
 sns = "^0.1"
-scipy = "^1.14.1"
+scikit-learn = "^1.6.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -50,3 +50,4 @@ train_rd_model = "flybrain.workflows:workflow_RD_RNN.run_training_RD_RNN"
 train_rd_model_fixed_param = "flybrain.workflows:workflow_RD_RNN_fixed_param.run_training_RD_RNN_fixed_param"
 train_flybrain_full = "flybrain.workflows:workflow_flybrain_RNN.run_training_flybrain_RNN"
 train_flybrain_pop="flybrain.workflows:workflow_flybrain_RNN_cell.run_training_flybrain_pop"
+grad="flybrain.workflows:workflow_grad_characterisation.grad_characterization"

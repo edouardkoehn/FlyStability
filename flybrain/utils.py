@@ -58,6 +58,65 @@ def construct_Random_Matrix_simple(
     return W, C
 
 
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+
+def construct_Symmetric_Matrix_simple(
+    n_neurons=100, coupling=1, showplot=False, seed=None
+):
+    """
+    Method to construct a symmetric random matrix, N(0, g)
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Generate a random matrix
+    W = np.random.normal(
+        loc=0, scale=coupling / np.sqrt(n_neurons), size=(n_neurons, n_neurons)
+    )
+
+    # Make the matrix symmetric
+    W = (W + W.T) / 2
+
+    # Remove self-connections
+    np.fill_diagonal(W, 0)
+
+    # Create connectivity matrix (-1, 0, 1)
+    C = np.where(W > 0, 1, np.where(W < 0, -1, 0))
+    W = np.abs(W)
+
+    # Plot matrices if requested
+    if showplot:
+        fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+        sns.heatmap(
+            W,
+            center=0,
+            square=True,
+            cmap="bwr",
+            cbar_kws={"fraction": 0.046},
+            ax=axs[0],
+        )
+        axs[0].set_title("Symmetric weights matrix", fontsize=12)
+        axs[0].set_xticks([])
+        axs[0].set_yticks([])
+        sns.heatmap(
+            C,
+            center=0,
+            square=True,
+            cmap="bwr",
+            cbar_kws={"fraction": 0.046},
+            ax=axs[1],
+        )
+        axs[1].set_title("Symmetric connectivity matrix", fontsize=12)
+        axs[1].set_xticks([])
+        axs[1].set_yticks([])
+        plt.show()
+
+    return W, C
+
+
 def display_trajectory(X, ax1, ax2, ind):
     sns.heatmap(
         X,
@@ -112,7 +171,7 @@ def display_activity(A, ax1, ax2, ind):
     plt.xticks(rotation=90)
 
 
-def run_plot_rnn(model, duration, driving_force=None, ind=None):
+def run_plot_rnn(model, duration, driving_force=None, ind=None, plot=True):
     if driving_force is None:
         driving_force = torch.zeros(model.H.shape[0], duration)
     X = np.zeros((model.H.shape[0], duration))
@@ -122,18 +181,21 @@ def run_plot_rnn(model, duration, driving_force=None, ind=None):
         X[:, t] = model.H.detach().numpy()
         A[:, t] = model.A.detach().numpy()
         model(ext_inputs=driving_force[:, t], update=True)
-    # print(X[0,:])
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8), sharex=False, sharey=False)
-    if ind is None:
-        traj_ind = np.random.choice(np.arange(0, A.shape[0]), 3)
-    else:
-        traj_ind = ind
-    display_trajectory(X, axs[0, 0], axs[0, 1], traj_ind)
-    display_activity(A, axs[1, 0], axs[1, 1], traj_ind)
 
-    plt.tight_layout()
-    # plt.show()
-    return fig
+    # print(X[0,:])
+    if plot:
+        fig, axs = plt.subplots(2, 2, figsize=(12, 8), sharex=False, sharey=False)
+        if ind is None:
+            traj_ind = np.random.choice(np.arange(0, A.shape[0]), 3)
+        else:
+            traj_ind = ind
+
+        display_trajectory(X, axs[0, 0], axs[0, 1], traj_ind)
+        display_activity(A, axs[1, 0], axs[1, 1], traj_ind)
+
+        plt.tight_layout()
+        plt.show()
+    return X, A
 
 
 def plot_spectrum(file_path, spectrum):
@@ -211,4 +273,5 @@ def load_logs(file_path):
         "grad_gains": np.array(data["grad_gains"]),
         "grad_shifts": np.array(data["grad_shifts"]),
         "grad_weights": np.array(data["grad_weights"]),
+        "time_training": data["time_training[s]"],
     }

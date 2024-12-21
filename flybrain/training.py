@@ -371,3 +371,64 @@ def create_mask(tensor, total_params, num_params_to_keep):
 
     # Reshape the mask to match the tensor's shape
     return mask.reshape(tensor.shape)
+
+
+def get_grad(
+    rnn_model: Model.RNN,
+    loss: functional.loss,
+    nLE: int,
+    train_weights: bool,
+    train_shifts: bool,
+    train_gains: bool,
+):
+    """
+    Get the gradient of the first epochs
+    """
+    rnn_model = rnn_model
+
+    # Configure the rnn for training with specified parameters
+    rnn_model.train(weight=train_weights, shifts=train_shifts, gains=train_gains)
+    rnn_model.reset_states()
+
+    grad_weights = (0,)
+    grad_shifts = (0,)
+    grad_gains = (0,)
+
+    # Set up optimizer based on selected training parameters
+    optimizer = set_optimizer(
+        rnn_model,
+        lr=0.01,
+        train_weights=train_weights,
+        train_gains=train_gains,
+        train_shifts=train_shifts,
+        maximize=False,
+    )
+    optimizer.zero_grad()
+    c0 = rnn_model.H_0.detach().numpy()
+
+    # Initialize and return the optimizer with the selected parameters
+    torch.autograd.set_detect_anomaly(True)
+    # Reset rnn states and optimizer gradients
+    rnn_model.set_states(c0)
+
+    # Compute Lyapunov spectrum and loss
+    spectrum = Lyapunov().compute_spectrum(
+        rnn_model, tSim=200, dt=0.1, tONS=0.2, nLE=nLE
+    )
+    loss_val = loss.call(spectrum)
+    optimizer.zero_grad()
+    loss_val.backward()
+
+    # Gradient clipping and storing gradient norms if applicable
+    if train_shifts:
+        grad_shifts = torch.norm(rnn_model.shifts.grad)
+    if train_gains:
+        grad_gains = torch.norm(rnn_model.gains.grad)
+    if train_weights:
+        grad_weights = torch.norm(rnn_model.W.grad)
+
+    return {
+        "grad_weights": grad_weights,
+        "grad_shifts": grad_shifts,
+        "grad_gains": grad_gains,
+    }
