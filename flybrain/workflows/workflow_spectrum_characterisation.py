@@ -1,3 +1,4 @@
+import json
 import os
 
 import click
@@ -70,7 +71,11 @@ def spectrum_characterization(
     output_fig_path = os.path.join(
         ROOT_PATH, "data", "fig", "spectrum_characterization"
     )
+    output_log_path = os.path.join(
+        ROOT_PATH, "data", "logs", "spectrum_characterization"
+    )
     os.makedirs(output_fig_path, exist_ok=True)
+    os.makedirs(output_log_path, exist_ok=True)
 
     # Select activation function
     activation_function = {
@@ -167,6 +172,29 @@ def spectrum_characterization(
         plt.savefig(
             os.path.join(output_fig_path, f"{run_name}_spect.svg"), format="svg"
         )
+        for key in spectrums.keys():
+            for sample in range(0, len(spectrums[key])):
+                spectrums[key][sample] = spectrums[key][sample].tolist()
+                entropies[key][sample] = entropies[key][sample].tolist()
+
+        with open(os.path.join(output_log_path, run_name + "_spectrum.json"), "w") as f:
+            json.dump(
+                spectrums,
+                f,
+            )
+        with open(
+            os.path.join(output_log_path, run_name + "_entropies.json"), "w"
+        ) as f:
+            json.dump(
+                entropies,
+                f,
+            )
+        with open(os.path.join(output_log_path, run_name + "_dim.json"), "w") as f:
+            json.dump(
+                dimensionality,
+                f,
+            )
+
     return
 
 
