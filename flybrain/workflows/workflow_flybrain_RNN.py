@@ -20,7 +20,7 @@ from flybrain.training import train_RD_RNN
 @click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
 @click.option(
     "--loss",
-    type=click.Choice(["l2", "MSE"]),
+    type=click.Choice(["l2", "MSE", "MSE_Custom"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -42,7 +42,7 @@ from flybrain.training import train_RD_RNN
 )
 @click.option(
     "--loss",
-    type=click.Choice(["l2", "MSE"]),
+    type=click.Choice(["l2", "MSE", "MSE_Custom"]),
     required=True,
     help="Which loss we want to use for the optimisation",
 )
@@ -91,7 +91,12 @@ def run_training_flybrain_RNN(
         os.makedirs(path, exist_ok=True)
 
     # Experiment parameters
-    loss_func = {"l2": functional.l2_norm(target), "MSE": functional.mse(target)}[loss]
+    loss_func = {
+        "l2": functional.l2_norm(target),
+        "MSE": functional.mse(target),
+        "Sinai": functional.sinai_entropy(),
+        "MSE_Custom": functional.mse_custom(),
+    }[loss]
     activation_func = {
         "tanh_pos": functional.tanh_positive(),
         "tanh_strech": functional.tanh_strech(),
