@@ -94,6 +94,29 @@ def run_training_RD_RNN(
     activation: str = "tanh_pos",
     dt: float = 0.1,
 ):
+    """
+    Train an RNN model with specified parameters on the flybrain connectome.
+
+    Parameters:
+        n (int): Size of the model, number of neurons used.
+        n_samples (int): Number of samples used.
+        nle (int): Number of Lyapunov exponents.
+        loss (str): Loss function to use, either 'l2', 'MSE', 'Sinai', or 'MSE_Custom'.
+        target (float): Target Lyapunov vector.
+        tons (float): Step size between QR factorizations.
+        tsim (int): Length of simulation (in tau).
+        g (float): Synaptic distribution parameter.
+        n_epochs (int): Number of epochs.
+        lr (float): Learning rate.
+        train_weights (bool): Whether to optimize weights.
+        train_shifts (bool): Whether to optimize shifts.
+        train_gains (bool): Whether to optimize gains.
+        activation (str): Activation function type.
+        dt (float): Time step for the simulation.
+
+    Returns:
+        None
+    """
     # Set up paths
     # np.random.seed(30)
     np.random.seed(29)
