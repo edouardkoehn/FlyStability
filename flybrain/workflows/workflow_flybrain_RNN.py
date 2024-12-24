@@ -17,7 +17,13 @@ from flybrain.training import train_RD_RNN
     required=True,
     help="Number of sample used, (default:1)",
 )
-@click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent use")
+@click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
+@click.option(
+    "--loss",
+    type=click.Choice(["l2", "MSE", "MSE_Custom"]),
+    required=True,
+    help="Which loss we want to use for the optimisation",
+)
 @click.option(
     "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
 )
@@ -72,26 +78,8 @@ def run_training_flybrain_RNN(
     roi: str = "EB",
     activation: str = "tanh_pos",
     dt: float = 0.1,
+    early_stopping: float = 1e-3,
 ):
-    """
-    Pipeline to train an RNN model constrained on the flybrain connectome.
-
-    Parameters:
-        n_samples (int): Number of samples to use for training.
-        nle (int): Number of Lyapunov exponents to compute.
-        loss (str): Loss function to use, either 'l2', 'MSE', or 'MSE_Custom'.
-        target (float): Target Lyapunov vector.
-        tons (float): Step size between consecutive QR factorizations.
-        tsim (int): Simulation length (in tau).
-        n_epochs (int): Number of training epochs.
-        lr (float): Learning rate.
-        roi (str): Region of interest for model data, default is "EB".
-        activation (str): Activation function type.
-        dt (float): Time step for the simulation.
-
-    Returns:
-        None
-    """
     # Set up paths
     np.random.seed(30)
     ROOT = utils.get_root()
