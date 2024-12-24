@@ -97,116 +97,159 @@ For each ROI, we require the following files
 
 You can also find the cellular type and the neurotransmitter correspondant under `flybrain/connectomes.py`
 
-## Worklows
+## Workflows
 ### 1) Convergence_lyapunov
 ```bash
 % lyapu_convergence --help
-Usage: lyapu_convergence [OPTIONS]
-
-  Simulates the convergence of Lyapunov exponents in a recurrent neural
-  network (RNN) model.
-
-  Parameters:   tons (float): Initial transient time before recording starts.
-                n_samples (int): Number of samples to test.
-                g (float):Coupling strength for connectivity matrix.
-                n (int): Number of neurons in the network.
-                nle (int): Number of Lyapunov exponents to compute.
-                dt(float): Time step size for integration.
-                tsim (int): Total simulation time.
-                activation (str): Type of activation function ('std', 'pos','strech').
+  Compute the convergence of Lyapunov exponents in a recurrent neural network (RNN) model.
 
 Options:
-  --tons FLOAT                    tons used in this experiment  [required]
+  --tons FLOAT                    Tons used in this experiment  [required]
   --activation [tanh|tanh_pos|tanh_streched]
-                                  Which loss we want to use for theoptimisation  [required]
+                                  Which loss we want to use for the
+                                  optimisation  [required]
   --g FLOAT                       Syn dist
-  --n_samples INTEGER             Amount of sample
+  --n_samples INTEGER             Amount of sample used
   --n INTEGER                     Size of the model, number of neurons used
   --nle INTEGER                   number of lyapunoc computed
   --help                          Show this message and exit.
 ```
-### D.2 transition_2_Chaos
+### 2) Transition 2 Chaos
 ```bash
 % transition_2_chaos --help
-Usage: transition_2_chaos [OPTIONS]
-  Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum.
+ Find the transition to chaos in a recurrent neural network (RNN) model.
 
 Options:
-  --gmin FLOAT                   Minimum value for coupling strength g [required]
-  --gmax FLOAT                   Maximum value for coupling strength g [required]
-  --m_g INTEGER                  Number of g values between gmin and gmax (default: 5)
-  --n_samples INTEGER            Number of samples for each g value [required]
-  --activation [std|pos|strech]  Activation function used in the model (default: std)
-  --save BOOLEAN                 Options to save the output
-  --help                         Show this message and exit.
+  --gmin FLOAT                    Minimum value for coupling strength g
+                                  [required]
+  --gmax FLOAT                    Maximum value for coupling strength g
+                                  [required]
+  --m_g INTEGER                   Number of g values between gmin and gmax
+                                  (default: 5)
+  --n_samples INTEGER             Number of samples for each g value
+                                  [required]
+  --parameter [weights|shifts|gains]
+                                  Which parameter to vary
+  --activation [std|pos|strech]   Activation function used in the model
+                                  (default: std)
+  --save BOOLEAN                  Options to save the output
+  --help                          Show this message and exit.
 ```
-### D.3 train_rd_model
+### 3) Spectrum
+```bash
+% spectrum --help
+  Characterize the spectrum of a recurrent neural network (RNN) model.
+
+Options:
+  --n INTEGER                     Size of the network   [required]
+  --n_samples INTEGER             Number of samples for each g value
+                                  [required]
+  --variance_max INTEGER          Number of samples for each g value
+  --parameter [weights|shifts|gains]
+                                  Which parameter to vary   [required]
+  --activation [std|pos|strech]   Activation function used in the model
+                                  (default: std)
+  --save BOOLEAN                  Options to save the output
+  --help                          Show this message and exit.
+```
+### 4) Train Random RNN
 ```bash
 % train_rd_model --help
-Usage: train_rd_model [OPTIONS]
+  Train an RNN model with specified parameters on the flybrain connectome.
 
 Options:
-  --n INTEGER                     Size of the model, number of neurons used [required]
-  --n_samples, --n_samples INTEGER
-                                  Number of sample used, (default:1) [required]
-  --nLE INTEGER                   Number of Lyapunov exponent used  [required]
-  --loss [l2|MSE]                 Which loss we want to use for the optimisation  [required]
-  --activation [tanh|tanh_pos|tanh_streched]
-                                  Which loss we want to use for the optimisation  [required]
-  --target FLOAT                  Target lyapunov vector
-  --tOns FLOAT                    Step size between two consecutive QR facto
-  --tSim INTEGER                  Length of the simulation [tau]
+  --n INTEGER                     Size of the model, number of neurons used
+                                  [required]
+  --n_samples INTEGER             Number of sample used, (default:1)
+                                  [required]
+  --nle INTEGER                   Number of Lyapunov exponent used  [required]
   --g FLOAT                       Synaptic distribution parameter  [required]
   --n_epochs INTEGER              Number of epochs used
-  --lr FLOAT                      Learning rate used
+  --activation [tanh|tanh_pos|tanh_streched]
+                                  Which loss we want to use for the
+                                  optimisation  [required]
+  --loss [l2|MSE|Sinai|MSE_Custom]
+                                  Which loss we want to use for the
+                                  optimisation  [required]
+  --target FLOAT                  Target lyapunov vector
+  --tons FLOAT                    Step size between two consecutive QR facto
+  --tsim INTEGER                  Length of the simulation [tau]
   --train_weights BOOLEAN         Optimizition on the weights
   --train_shifts BOOLEAN          Optimizition on the shitfs
   --train_gains BOOLEAN           Optimizition on the gains
+  --lr FLOAT                      Learning rate used
   --help                          Show this message and exit.
+
 ```
-### D.4 train_flybrain_full
+### 5) Train Random RNN
+```bash
+% train_rd_model_fixed_param --help
+  Train an RNN model with fixed parameters on the flybrain connectome.
+
+Options:
+  --n INTEGER                     Number of neurons in the model  [required]
+  --n_samples INTEGER             Number of samples used  [required]
+  --nle INTEGER                   Number of Lyapunov exponents  [required]
+  --g FLOAT                       Synaptic distribution parameter  [required]
+  --n_epochs INTEGER              Number of epochs
+  --activation [tanh|tanh_pos|tanh_streched]
+                                  Activation function  [required]
+  --loss [l2|MSE|Sinai]           Loss function  [required]
+  --target FLOAT                  Target Lyapunov vector
+  --number_param INTEGER...       Number of parameters to optimize
+  --tons FLOAT                    Step size between QR factorization
+  --tsim INTEGER                  Length of simulation [tau]
+  --train_weights BOOLEAN         Optimize weights
+  --train_shifts BOOLEAN          Optimize shifts
+  --train_gains BOOLEAN           Optimize gains
+  --lr FLOAT                      Learning rate
+  --help                          Show this message and exit.
+
+```
+### 6) Train Flybrain
 ```bash
 % train_flybrain_full --help
-Usage: train_flybrain_full [OPTIONS]
 
 Options:
   --n_samples INTEGER             Number of sample used, (default:1)
                                   [required]
-  --nLE INTEGER                   Number of Lyapunov exponent used  [required]
-  --loss [l2|MSE]                 Which loss we want to use for the
+  --nle INTEGER                   Number of Lyapunov exponent used  [required]
+  --loss [l2|MSE|MSE_Custom]      Which loss we want to use for the
                                   optimisation  [required]
-  --ROI TEXT                      Which ROI, we would like to use  [required]
+  --n_epochs INTEGER              Number of epochs used
+  --roi TEXT                      Which ROI, we would like to use  [required]
   --activation [tanh_pos|tanh_streched]
                                   Which loss we want to use for the
                                   optimisation  [required]
+  --loss [l2|MSE|MSE_Custom]      Which loss we want to use for the
+                                  optimisation  [required]
   --target FLOAT                  Target lyapunov vector
-  --tOns FLOAT                    Step size between two consecutive QR facto
-  --tSim INTEGER                  Length of the simulation [tau]
-  --n_epochs INTEGER              Number of epochs used
+  --tons FLOAT                    Step size between two consecutive QR facto
+  --tsim INTEGER                  Length of the simulation [tau]
   --lr FLOAT                      Learning rate used
   --help                          Show this message and exit.
 ```
-### D.4 train_flybrain_pop
+### 7) Train Flybrain population specific
 ```bash
 % train_flybrain_pop --help
-Usage: train_flybrain_pop [OPTIONS]
+  Pipeline to train an RNN model constrained on the flybrain connectome.
+
 Options:
-  --n_samples INTEGER             Number of sample used
-  --nle INTEGER                   Number of Lyapunov exponent used
-  --subpopulation [cell_fibers|neurotransmitter]
-                                  Which features would you like to use to
-                                  define the subpopulation
-  --ROI TEXT                      Which ROI, we would like to use  [required]
-  --activation [tanh_pos|tanh_streched]
-                                  Which loss we want to use for the
-                                  optimisation
-  --loss [l2|MSE]                 Which loss we want to use for the
-                                  optimisation
-  --target FLOAT                  Target lyapunov vector
-  --tOns FLOAT                    Step size between two consecutive QR facto
-  --tSim INTEGER                  Length of the simulation [tau]
+  --n_samples INTEGER             Number of runs to perform
+  --nle INTEGER                   Number of Lyapunov exponents used for the
+                                  optimization
   --n_epochs INTEGER              Number of epochs used
-  --lr FLOAT                      Learning rate used
+  --roi TEXT                      Region of interest (Flybrain)  [required]
+  --subpopulation [cell_fibers|neurotransmitter]
+                                  Subpopulation feature( cell types based or
+                                  neurotransmitter based)
+  --activation [tanh_pos|tanh_streched]
+                                  Activation function used
+  --loss [l2|MSE]                 Loss function
+  --target FLOAT                  Target value for the Lyapunov vector
+  --tons FLOAT                    Step size between QR factorizations
+  --tsim INTEGER                  Simulation length [tau]
+  --lr FLOAT                      Learning rate
   --help                          Show this message and exit.
 ```
 ## Installation
