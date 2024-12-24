@@ -87,7 +87,7 @@ Attributes:
 
 ```
 ### B) The connectomic data:
-All the connectomics data come from this [work](https://elifesciences.org/articles/66039) by the [Janelia Research Campus](https://www.janelia.org/). The preprocessing of the data was performed using the `bouchardlab/maxent_diffusion/batch_ergm_manager.py`. This code was used to extract information about each desired region of interest(ROI). In the current version, we only published 5 different ROI. You can find the complete name of each roi [here](https://neuprint.janelia.org/results). You will find the preprocessed data [HERE](https://drive.google.com/drive/folders/11uwJG8WXrDFQjgepxHp347E_X8uaJl-F?usp=sharing).\
+All the connectomics data come from this [work](https://elifesciences.org/articles/66039) by the [Janelia Research Campus](https://www.janelia.org/). The preprocessing of the data was performed using the `bouchardlab/maxent_diffusion/batch_ergm_manager.py`. This code was used to extract information about each desired region of interest(ROI). In the current version, we only published 5 different ROI, that you can find [HERE](https://drive.google.com/drive/folders/11uwJG8WXrDFQjgepxHp347E_X8uaJl-F?usp=sharing). You can find the complete name of each roi [here](https://neuprint.janelia.org/results).\
 For each ROI, we require the following files
 - `adjacency_scc.npy`  # Connectivity matrix
 - `cell_body_fiber_assignement.pkl`  # Correspondence between an ID and a specific cell type
