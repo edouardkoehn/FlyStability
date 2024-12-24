@@ -6,15 +6,15 @@ This repository contains all the code related to the RandomNet project. This pro
 
 
 ## Index
-- [Abstract](##Abstract)
+- [Abstract](#Abstract)
 
-- [Structure of the repo](##Structure-of-the-code)
+- [Structure of the repo](#Structure-of-the-code)
 
-- [Data usage](##Data-usage)
+- [Data usage](#Model-and-Data)
 
-- [Workflows](##Workflows)
+- [Workflows](#Workflows)
 
-- [Installation](##Installation)
+- [Installation](#Installation)
 ## Abstract
 
 ## Structure of the code
@@ -60,8 +60,8 @@ FlyStability
 |-- README.md           # Repository documentation
 ```
 ## Model and Data
-A) The model: \
-We used the standard dynamic defined by : (1) $ \frac{\partial{h_i}}{\partial{t}}=-h_i + \sum_{j=0}^NC_{ij}W_{ij}*(\phi(h_j))$\
+### A) The model:
+We used the standard dynamic defined by : (1) $\frac{\partial{h_i}}{\partial{t}}=-h_i + \sum_{j=0}^NC_{ij}W_{ij}*(\phi(h_j))$\
 Where C represent the sign matrix and W repraent the connectivity matrix. In every model, we always assume the model has no-self connection.\
 The user can define the non-linearity, to use : $tanh(), tanh(g(x-s)),\frac{1}{2}(1+tanh(g(x-s)))$\
 We declaring a model, we alway need to give explicitely the different matrix, please use the utils.py method to retrive ROI specific matrix or generate random one.
@@ -86,7 +86,7 @@ Attributes:
 """
 
 ```
-B) The connectomic data: \
+### B) The connectomic data:
 All the connectomics data come from this [work](https://elifesciences.org/articles/66039) by the [Janelia Research Campus](https://www.janelia.org/). The preprocessing of the data was performed using the `bouchardlab/maxent_diffusion/batch_ergm_manager.py`. This code was used to extract information about each desired region of interest(ROI). In the current version, we only published 5 different ROI. You can find the complete name of each roi [here](https://neuprint.janelia.org/results). \
 For each ROI, we require the following files
 - `adjacency_scc.npy`  # Connectivity matrix
