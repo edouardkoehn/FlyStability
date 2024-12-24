@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flybrain"#name of your module
-version = "0.0.1"#version of your module
+version = "1.0.0"#version of your module
 description = "Flystability project"#description of your modeél
 authors = ["Edouard Koehn"]
 license = "MIT License"
@@ -50,4 +50,3 @@ train_rd_model = "flybrain.workflows:workflow_RD_RNN.run_training_RD_RNN"
 train_rd_model_fixed_param = "flybrain.workflows:workflow_RD_RNN_fixed_param.run_training_RD_RNN_fixed_param"
 train_flybrain_full = "flybrain.workflows:workflow_flybrain_RNN.run_training_flybrain_RNN"
 train_flybrain_pop="flybrain.workflows:workflow_flybrain_RNN_cell.run_training_flybrain_pop"
-grad="flybrain.workflows:workflow_grad_characterisation.grad_characterization"
