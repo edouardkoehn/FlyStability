@@ -63,7 +63,23 @@ def spectrum_characterization(
     tOns: float = 0.2,
     save: bool = True,
 ):
-    """Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum."""
+    """
+    Characterize the spectrum of a recurrent neural network (RNN) model.
+
+    Parameters:
+        n (int): Size of the network.
+        n_samples (int): Number of samples for each g value.
+        variance_max (int): Maximum variance for the parameter.
+        activation (str): Activation function used in the model ('std', 'pos', 'strech').
+        parameter (list): List of parameters to vary ('weights', 'shifts', 'gains').
+        tSim (int): Total simulation time.
+        dt (float): Time step size for integration.
+        tOns (float): Initial transient time before recording starts.
+        save (bool): Option to save the output.
+
+    Returns:
+        None
+    """
     parameter = list(parameter)
     N = n
     # Define output paths and create directory if it doesn't exist
