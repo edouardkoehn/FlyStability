@@ -11,83 +11,63 @@ from flybrain.training import train_RD_RNN
 
 
 @click.command()
+@click.option("--n_samples", type=int, default=1, help="Number of samples used")
+@click.option("--nle", type=int, default=1, help="Number of Lyapunov exponents used")
+@click.option("--n_epochs", type=int, default=10, help="Number of epochs used")
+@click.option("--roi", type=str, required=True, default="EB", help="Region of interest")
 @click.option(
-    "--n_samples",
-    type=int,
-    required=True,
-    help="Number of sample used, (default:1)",
-)
-@click.option("--nle", type=int, required=True, help="Number of Lyapunov exponent used")
-@click.option(
-    "--loss",
-    type=click.Choice(["l2", "MSE"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
-)
-@click.option(
-    "--n_epochs", type=int, required=False, default=10, help="Number of epochs used"
-)
-@click.option(
-    "--roi",
-    type=str,
-    required=True,
-    default="EB",
-    help="Which ROI, we would like to use",
+    "--subpopulation",
+    type=click.Choice(["cell_fibers", "neurotransmitter"]),
+    default="neurotransmitter",
+    help="Subpopulation feature",
 )
 @click.option(
     "--activation",
     type=click.Choice(["tanh_pos", "tanh_streched"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
+    default="tanh_pos",
+    help="Activation function",
 )
 @click.option(
-    "--loss",
-    type=click.Choice(["l2", "MSE"]),
-    required=True,
-    help="Which loss we want to use for the optimisation",
+    "--loss", type=click.Choice(["l2", "MSE"]), default="l2", help="Loss function"
 )
+@click.option("--target", type=float, default=0.0, help="Target Lyapunov vector")
 @click.option(
-    "--target", type=float, required=False, default=0.0, help="Target lyapunov vector"
+    "--tons", type=float, default=0.2, help="Step size between QR factorizations"
 )
-@click.option(
-    "--tons",
-    type=float,
-    required=False,
-    default=0.2,
-    help="Step size between two consecutive QR facto",
-)
-@click.option(
-    "--tsim",
-    type=int,
-    required=False,
-    default=200,
-    help="Length of the simulation [tau]",
-)
-@click.option(
-    "--lr", type=float, required=False, default=0.01, help="Learning rate used"
-)
-@click.option(
-    "--early_stopping",
-    type=float,
-    required=False,
-    default=1e-3,
-    help="Value of the loss at wich the optimization would stop",
-)
-def run_training_flybrain_RNN(
-    n_samples: int = 1,
-    nle: int = 1,
-    loss: str = "l2",
-    target: float = 0.0,
-    tons: float = 0.2,
-    tsim: int = 200,
-    n_epochs: int = 100,
-    lr: float = 0.01,
-    roi: str = "EB",
-    activation: str = "tanh_pos",
-    dt: float = 0.1,
-    early_stopping: float = 1e-3,
+@click.option("--tsim", type=int, default=200, help="Simulation length [tau]")
+@click.option("--lr", type=float, default=0.01, help="Learning rate")
+def run_training_flybrain_pop(
+    n_samples,
+    subpopulation,
+    nle,
+    loss,
+    target,
+    tons,
+    tsim,
+    n_epochs,
+    lr,
+    roi,
+    activation,
 ):
-    # Set up paths
+    """
+    Pipeline to train an RNN model constrained on the flybrain connectome.
+
+    Parameters:
+        n_samples (int): Number of samples to use for training.
+        subpopulation (str): Defines subpopulation feature (choices: 'cell_fiber' or 'neurotransmitter').
+        nle (int): Number of Lyapunov exponents to compute.
+        loss (str): Loss function to use, either 'l2' or 'MSE'.
+        target (float): Target Lyapunov vector.
+        tons (float): Step size between consecutive QR factorizations.
+        tsim (int): Simulation length (in tau).
+        n_epochs (int): Number of training epochs.
+        lr (float): Learning rate.
+        roi (str): Region of interest for model data, default is "EB".
+        activation (str): Activation function type.
+
+    Returns:
+        None
+    """
     np.random.seed(30)
     ROOT = utils.get_root()
     output_paths = {
@@ -98,7 +78,6 @@ def run_training_flybrain_RNN(
     for path in output_paths.values():
         os.makedirs(path, exist_ok=True)
 
-    # Experiment parameters
     loss_func = {"l2": functional.l2_norm(target), "MSE": functional.mse(target)}[loss]
     activation_func = {
         "tanh_pos": functional.tanh_positive(),
@@ -106,16 +85,14 @@ def run_training_flybrain_RNN(
     }[activation]
 
     experiment_name = (
-        f"{activation_func.name()}_ROI_{roi}_Weights{False}_Shifts{True}_"
+        f"{activation_func.name()}_ROI_{roi}_Subpop_{subpopulation}_Weights{False}_Shifts{True}_"
         f"Gains{True}_lr{lr}_NLE{nle}_Epochs{n_epochs}_{loss_func.name()}_"
-        f"Tons{tons}_Tsim{tsim}_dt{dt}"
+        f"Tons{tons}_Tsim{tsim}_dt{0.1}"
     )
 
     training_loss, training_maxlambda, spectrum = [], [], []
-
     for sample in range(n_samples):
-        # Create model
-        ROI_data = connectome.load_flybrain(ROI=roi, types="Neurotransmitter")
+        ROI_data = connectome.load_flybrain(ROI=roi, types=subpopulation)
         W, C = connectome.normalize_connectome(
             W=ROI_data["weights"], C=ROI_data["connectivity"]
         )
@@ -125,6 +102,7 @@ def run_training_flybrain_RNN(
             weights_matrix=W,
             initial_condition=c0,
             activation_function=activation_func,
+            cell_types_vector=ROI_data["types"],
         )
         run_name = f"{experiment_name}_Sample{sample}"
 
@@ -136,14 +114,13 @@ def run_training_flybrain_RNN(
             N_epoch=n_epochs,
             tSim=tsim,
             tONs=tons,
-            dt=dt,
+            dt=0.1,
             train_weights=False,
             train_shifts=True,
             train_gains=True,
             lr=lr,
             run_name=run_name,
             run_type="flybrain_RNN",
-            early_stopping_crit=early_stopping,
         )
 
         # Load logs and store results
@@ -153,7 +130,7 @@ def run_training_flybrain_RNN(
         training_loss.append(data["training_loss"])
         training_maxlambda.append(data["training_lambda_max"])
         spectrum.append(data["spectrum"])
-        # Plot results
+
         utils.plot_losses(
             os.path.join(output_paths["fig"], experiment_name),
             training_loss,
@@ -163,7 +140,6 @@ def run_training_flybrain_RNN(
             os.path.join(output_paths["fig"], experiment_name), spectrum
         )
 
-    # Plot results
     utils.plot_losses(
         os.path.join(output_paths["fig"], experiment_name),
         training_loss,
@@ -171,8 +147,6 @@ def run_training_flybrain_RNN(
     )
     utils.plot_spectrum(os.path.join(output_paths["fig"], experiment_name), spectrum)
 
-    return
-
 
 if __name__ == "__main__":
-    run_training_flybrain_RNN()
+    run_training_flybrain_pop()
