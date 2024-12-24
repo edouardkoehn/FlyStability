@@ -10,6 +10,8 @@ class functional:
 
 
 class tanh(functional):
+    """f(x)=tanh(x)"""
+
     def name(self):
         return "tanh"
 
@@ -18,6 +20,8 @@ class tanh(functional):
 
 
 class tanh_strech(functional):
+    """f(x)=tanh(gain*(x-shift)))"""
+
     def name(self):
         return "tanh_streched"
 
@@ -26,6 +30,8 @@ class tanh_strech(functional):
 
 
 class tanh_positive(functional):
+    """f(x)=0.5(1+tanh(gain*(x-shift)))"""
+
     def name(self):
         return "tanh_positive"
 
@@ -47,7 +53,7 @@ class loss:
 
 
 class l2_norm(loss):
-    """Define our custom l2 loss"""
+    """Define our custom l2 loss with a constant target vector"""
 
     def __init__(self, target_value):
         super().__init__(target_value)
@@ -61,7 +67,7 @@ class l2_norm(loss):
 
 
 class mse(loss):
-    """Define our custom MSE loss"""
+    """Define our custom MSE loss with a constant target vector"""
 
     def __init__(self, target_value):
         super().__init__(target_value)
@@ -75,7 +81,7 @@ class mse(loss):
 
 
 class mse_custom(loss):
-    """Define our custom MSE loss"""
+    """Define our custom MSE loss. It allow the user to define the target vector"""
 
     def __init__(self):
         super().__init__(0.0)
@@ -94,6 +100,8 @@ class mse_custom(loss):
 
 
 class sinai_entropy(loss):
+    """Loss based on the Sinai-Kolmogorov entropy defined from the Lyapunov exponent. See Englekamp et al. 2021, for more details"""
+
     def __init__(self):
         super().__init__(0.0)
 

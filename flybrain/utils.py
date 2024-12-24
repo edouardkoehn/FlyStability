@@ -1,6 +1,4 @@
-import copy
 import json
-import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -58,16 +56,20 @@ def construct_Random_Matrix_simple(
     return W, C
 
 
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-
-
 def construct_Symmetric_Matrix_simple(
     n_neurons=100, coupling=1, showplot=False, seed=None
 ):
     """
-    Method to construct a symmetric random matrix, N(0, g)
+    Construct a symmetric random matrix, N(0, g), without any self-loop.
+
+    Parameters:
+        n_neurons (int): Number of neurons in the network.
+        coupling (float): Coupling strength for the connectivity matrix.
+        showplot (bool): Whether to show a plot of the matrix.
+        seed (int or None): Random seed for reproducibility.
+
+    Returns:
+        np.ndarray: The constructed symmetric matrix.
     """
     if seed is not None:
         np.random.seed(seed)
@@ -117,7 +119,19 @@ def construct_Symmetric_Matrix_simple(
     return W, C
 
 
-def display_trajectory(X, ax1, ax2, ind):
+def display_trajectory(X: torch.tensor, ax1, ax2, ind):
+    """
+    Display the hidden state of the network as a heatmap and as a time series.
+
+    Parameters:
+        X (torch.tensor): The hidden state tensor of the network.
+        ax1: The axis for displaying the heatmap.
+        ax2: The axis for displaying the time series.
+        ind: The index of the neuron to display.
+
+    Returns:
+        None
+    """
     sns.heatmap(
         X,
         square=False,
@@ -145,7 +159,8 @@ def display_trajectory(X, ax1, ax2, ind):
     plt.xticks(rotation=90)
 
 
-def display_activity(A, ax1, ax2, ind):
+def display_activity(A: torch.tensor, ax1, ax2, ind):
+    """Method to display the activity  of the network as heatmap and as time series"""
     sns.heatmap(
         A,
         square=False,
