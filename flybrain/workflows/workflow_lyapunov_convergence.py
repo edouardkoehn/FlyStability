@@ -12,7 +12,7 @@ from flybrain.model import RNN
 
 
 @click.command()
-@click.option("--tons", type=float, required=True, help="tons used in this experiment")
+@click.option("--tons", type=float, required=True, help="Tons used in this experiment")
 @click.option(
     "--activation",
     type=click.Choice(["tanh", "tanh_pos", "tanh_streched"]),
@@ -21,7 +21,7 @@ from flybrain.model import RNN
 )
 @click.option("--g", type=float, required=False, default=1.5, help="Syn dist")
 @click.option(
-    "--n_samples", type=int, required=False, default=5, help="Amount of sample"
+    "--n_samples", type=int, required=False, default=5, help="Amount of sample used"
 )
 @click.option(
     "--n",
@@ -44,17 +44,20 @@ def run_convergence_lyapunov(
     tsim: int = 700,
 ):
     """
-    Simulates the convergence of Lyapunov exponents in a recurrent neural network (RNN) model.
+    Compute the convergence of Lyapunov exponents in a recurrent neural network (RNN) model.
 
     Parameters:
         tons (float): Initial transient time before recording starts.
-        n_samples (int): Number of samples to test.
+        activation (str): Type of activation function ('tanh', 'pos', 'strech').
         g (float): Coupling strength for connectivity matrix.
+        n_samples (int): Number of samples to test.
         n (int): Number of neurons in the network.
         nle (int): Number of Lyapunov exponents to compute.
         dt (float): Time step size for integration.
         tsim (int): Total simulation time.
-        activation (str): Type of activation function ('std', 'pos', 'strech').
+
+    Returns:
+        None
     """
     np.random.seed(10)  # Set random seed for reproducibility
     # Set the root path for outputs to avoid setting it repeatedly
