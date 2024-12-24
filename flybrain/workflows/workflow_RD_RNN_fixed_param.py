@@ -60,7 +60,30 @@ def run_training_RD_RNN_fixed_param(
     activation,
     number_param,
 ):
-    """Main function to train RD-RNN with fixed parameters."""
+    """
+    Train an RNN model with fixed parameters on the flybrain connectome.
+
+    Parameters:
+        n (int): Number of neurons in the model.
+        n_samples (int): Number of samples used.
+        nle (int): Number of Lyapunov exponents.
+        loss (str): Loss function to use, either 'l2', 'MSE', or 'Sinai'.
+        target (float): Target Lyapunov vector.
+        tons (float): Step size between QR factorizations.
+        tsim (int): Length of simulation (in tau).
+        g (float): Synaptic distribution parameter.
+        n_epochs (int): Number of epochs.
+        lr (float): Learning rate.
+        train_weights (bool): Whether to optimize weights.
+        train_shifts (bool): Whether to optimize shifts.
+        train_gains (bool): Whether to optimize gains.
+        activation (str): Activation function type.
+        number_param (list of int): Number of parameters to optimize.
+
+    Returns:
+        None
+    """
+
     # Seed initialization for reproducibility
     np.random.seed(30)
 
