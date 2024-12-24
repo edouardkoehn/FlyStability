@@ -35,6 +35,7 @@ class Lyapunov:
     ):
         """
         Computes the Lyapunov spectrum for an RNN model over a given simulation time.
+        We use the QR decomposition method to compute the Lyapunov spectrum. See the work of Engleken et al. for more details.
 
         Args:
             model (RNN): The RNN model to evaluate.
@@ -126,7 +127,7 @@ class Lyapunov:
 
 
 def get_attractor_dimensionality(spectrum: np.array):
-    """Method to compute the strange attractors dimensionality from the network dynamics"""
+    """Method to compute the strange attractors dimensionality from the network dynamics. The calculation are based on the work of Engleken et al."""
     cumulative_sum = 0
     max_k = 0
 
@@ -141,5 +142,5 @@ def get_attractor_dimensionality(spectrum: np.array):
 
 
 def get_entropy(spectrum: np.array):
-    """Method to compute the Sinai-Kolmogorov entropie from the network dynamics"""
+    """Method to compute the Sinai-Kolmogorov entropie from the network dynamics.The calculation are based on the work of Engleken et al."""
     return torch.sum(torch.nn.ReLU()(spectrum))

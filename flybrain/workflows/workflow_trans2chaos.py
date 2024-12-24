@@ -61,7 +61,26 @@ def find_transition_2_chaos(
     parameter: list = ["weights"],
     save: bool = True,
 ):
-    """Generates multiple RNN models with varying coupling values and calculates Lyapunov spectrum."""
+    """
+    Find the transition to chaos in a recurrent neural network (RNN) model.
+
+    Parameters:
+        gmin (float): Minimum value for coupling strength g.
+        gmax (float): Maximum value for coupling strength g.
+        m_g (int): Number of g values between gmin and gmax.
+        N (int): Size of the network.
+        n_samples (int): Number of samples for each g value.
+        tSim (int): Total simulation time.
+        dt (float): Time step size for integration.
+        tOns (float): Initial transient time before recording starts.
+        activation (str): Activation function used in the model ('std', 'pos', 'strech').
+        parameter (list): List of parameters to vary ('weights', 'shifts', 'gains').
+        save (bool): Option to save the output.
+
+    Returns:
+        None
+    """
+
     parameter = list(parameter)
     # Define output paths and create directory if it doesn't exist
     ROOT_PATH = utils.get_root()

@@ -1,30 +1,104 @@
-# 🪰  Fly Stability  🪰
-This repository contains all the code related to the Fly Stability project. This project was part of my master thesis conducted in the [Neural Systems and Machine Learning Lab](https://bouchardlab.lbl.gov/) under the supervision of K. Bouchard.
+# 🪰  RandomNet 🪰
+This repository contains all the code related to the RandomNet project. This project was part of my master thesis conducted in the [Neural Systems and Machine Learning Lab](https://bouchardlab.lbl.gov/) under the supervision of K. Bouchard.
 
-The goal of this project was to answer the following questions:
-- How does the stability of an RNN influence the emegence of functional dynamic?
-
--Is stability a sufficient or necessary condition for functionnla dynamic to develop?
-# Index
-A. [Background](#installation)
-
-B. [Structure of the repo](###Structureoftherepo)
-
-C. [Data usage/storage](###Structureoftherepo)
-
-D. [Workflows](###Workflows)
-
-E. [Installation](#installation)
+[Edouard Koehn](edouard.koehn@berkeley.edu) \
+15.01.2024
 
 
-## A. Background and results
+## Index
+- [Abstract](##Abstract)
 
-## B. Structure of the repo
+- [Structure of the repo](##Structure-of-the-code)
 
-## C. Data usage
+- [Data usage](##Data-usage)
 
-## D. Worklows
-### D.1 Convergence_lyapunov
+- [Workflows](##Workflows)
+
+- [Installation](##Installation)
+## Abstract
+
+## Structure of the code
+This repository is designed to serve as a framework for the RandomNet project and any future related projects. All classes are implemented as abstract classes to ensure reusability in other projects.
+
+The main idea is that when creating a new experiment, you can leverage the existing framework and only need to implement your specific workflow. Each workflow is callable through the command line, enhancing the reproducibility of the code.
+
+The current module allows the user to:
+- Evaluate the phase transition of RNNs in terms of the Lyapunov spectrum of the system.
+- Train a random RNN using a loss function based on the Lyapunov spectrum of the system.
+- Train a biologically constrained RNN.
+
+The structure of the repository is as follows:
+```bash
+FlyStability
+|
+|-- .github/            # Continuous Integration setup using GitHub Actions
+|
+|-- data/               # Storage for connectome data and workflow exports
+|   |-- connectomics/   # Raw connectomics data
+|   |-- fig/            # Generated figures
+|   |-- logs/           # Logs for workflows
+|   |-- model/          # Trained models and related data
+|
+|-- bash/               # Bash scripts for automating experiments
+|
+|-- flybrain/           # Core module containing workflows and utilities
+|   |-- workflows/      # Workflow implementations
+|   |-- __init__.py     # Module initialization
+|   |-- connectome.py   # Connectome processing utilities
+|   |-- functional.py   # Functional processing utilities
+|   |-- lyapunov.py     # Lyapunov spectrum calculations
+|   |-- model.py        # Model definitions
+|   |-- qr.py           # Custom QR factorization routines
+|   |-- training.py     # Training scripts
+|   |-- utils.py        # General utility functions
+|
+|-- tests/              # Unit tests for the framework
+|
+|-- notebooks/          # Notebooks generating plots for the report
+|-- .gitignore          # Git ignore file
+|-- pyproject.toml      # Project configuration and dependencies
+|-- README.md           # Repository documentation
+```
+## Model and Data
+A) The model: \
+We used the standard dynamic defined by : (1) $ \frac{\partial{h_i}}{\partial{t}}=-h_i + \sum_{j=0}^NC_{ij}W_{ij}*(\phi(h_j))$\
+Where C represent the sign matrix and W repraent the connectivity matrix. In every model, we always assume the model has no-self connection.\
+The user can define the non-linearity, to use : $tanh(), tanh(g(x-s)),\frac{1}{2}(1+tanh(g(x-s)))$\
+We declaring a model, we alway need to give explicitely the different matrix, please use the utils.py method to retrive ROI specific matrix or generate random one.
+```bash
+"""
+A generic class for Recurrent Neural Networks (RNNs).
+
+This class enables the creation of RNN models with customizable parameters and feed-forward dynamics, while maintaining a common structural framework.
+
+Attributes:
+        C (torch.Tensor): Connectivity matrix defining the network structure (N x N).
+        W (torch.Tensor): Weights matrix representing the strength of connections between nodes (N x N).
+        cell_types (torch.Tensor): Tensor specifying the type of each node, which can influence its dynamics.
+        gains (torch.Tensor): Gain values applied to each cell type, modifying the input strength for each node type.
+        shifts (torch.Tensor): Shift values applied to each cell type, acting as a bias term.
+        H_0 (torch.Tensor): Initial activity state for each node (N x 1).
+        H (torch.Tensor): Current activity state of each node (N x 1).
+        dt (float): Time step used in the simulation.
+        N (int): Number of nodes in the network.
+        activation (function): Activation function applied to each unit (default is tanh_strech).
+        A (torch.Tensor): Current activations, obtained by applying the activation function to `H`.
+"""
+
+```
+B) The connectomic data: \
+All the connectomics data come from this [work](https://elifesciences.org/articles/66039) by the [Janelia Research Campus](https://www.janelia.org/). The preprocessing of the data was performed using the `bouchardlab/maxent_diffusion/batch_ergm_manager.py`. This code was used to extract information about each desired region of interest(ROI). In the current version, we only published 5 different ROI. You can find the complete name of each roi [here](https://neuprint.janelia.org/results). \
+For each ROI, we require the following files
+- `adjacency_scc.npy`  # Connectivity matrix
+- `cell_body_fiber_assignement.pkl`  # Correspondence between an ID and a specific cell type
+- `nid_scc.npy`  # Indicates which cell type is assigned to each neuron
+- `ei_neuron_types.pkl`  # Correspondence between an ID and a specific neurotransmitter
+- `ei_neuron.npy`  # Indicates which neurotransmitter is assigned to each neuron
+
+You can also find the cellular type and the neurotransmitter correspondant under `flybrain/connectomes.py`
+
+## Worklows
+### 1) Convergence_lyapunov
 ```bash
 % lyapu_convergence --help
 Usage: lyapu_convergence [OPTIONS]
@@ -135,7 +209,7 @@ Options:
   --lr FLOAT                      Learning rate used
   --help                          Show this message and exit.
 ```
-## E. Installation
+## Installation
 
 - Clone the repo
 

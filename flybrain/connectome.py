@@ -289,7 +289,7 @@ def sinkhorn_knopp(A, max_iter=10, tol=1e-6, epsilon=1e-10):
 
 
 def normalize_connectome(W, C):
-    """Simple method to normalize the W matrix"""
+    """Simple method to normalize using Sinkhorn the W matrix"""
     C_inhib = copy.deepcopy(C)
     C_inhib[np.where(C > 0)] = 0
     C_inhib = C_inhib * -1

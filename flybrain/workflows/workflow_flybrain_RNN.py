@@ -78,6 +78,7 @@ def run_training_flybrain_RNN(
     roi: str = "EB",
     activation: str = "tanh_pos",
     dt: float = 0.1,
+    early_stopping: float = 1e-3,
 ):
     # Set up paths
     np.random.seed(30)
