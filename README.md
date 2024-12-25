@@ -99,6 +99,7 @@ You can also find the cellular type and the neurotransmitter correspondant under
 
 ## Workflows
 ### 1) Convergence_lyapunov
+This experiment allow the user to test and visualize the convergence of the Lyapnuov exponent. You can try different parameters to see how the Tons. Notice the fact that tons has a direct on the time of compute every lyapunov spectrum. (see report Fig.X)
 ```bash
 % lyapu_convergence --help
   Compute the convergence of Lyapunov exponents in a recurrent neural network (RNN) model.
@@ -115,6 +116,7 @@ Options:
   --help                          Show this message and exit.
 ```
 ### 2) Transition 2 Chaos
+This experiment allows to test the phase transition of the any random netowrk. You can try different activation function and can also choose wich parameter need to be drawn from a normal disttribution. (see report Fig.X)
 ```bash
 % transition_2_chaos --help
  Find the transition to chaos in a recurrent neural network (RNN) model.
@@ -136,6 +138,7 @@ Options:
   --help                          Show this message and exit.
 ```
 ### 3) Spectrum
+Similar workflow than the "Trans 2 Chaos" but instee of only looking at the maximum lypunov exponent, we look at the full spectrum, the strange attractor dimensionality and the Sinai-Kolmogorov attractor.
 ```bash
 % spectrum --help
   Characterize the spectrum of a recurrent neural network (RNN) model.
@@ -153,6 +156,7 @@ Options:
   --help                          Show this message and exit.
 ```
 ### 4) Train Random RNN
+This pipeline allow you to train a random rnn. Once you choose one training options (train_weight, ...) the optimisation would be on those parameters.
 ```bash
 % train_rd_model --help
   Train an RNN model with specified parameters on the flybrain connectome.
@@ -182,6 +186,7 @@ Options:
 
 ```
 ### 5) Train Random RNN
+Same pipeline than the previous one but instead of train the full range of parameter, you can specify how many parameters you want to optimize.
 ```bash
 % train_rd_model_fixed_param --help
   Train an RNN model with fixed parameters on the flybrain connectome.
@@ -207,6 +212,7 @@ Options:
 
 ```
 ### 6) Train Flybrain
+This experiment allow you to train a biologicaly constrained RNN. Indeed you can specify wich ROI should be used as connectivity for you model. In this pipeline, only the shifts and gains are optimised. Watch out, each neurons has it's own shift and gains parameter.
 ```bash
 % train_flybrain_full --help
 
@@ -230,6 +236,7 @@ Options:
   --help                          Show this message and exit.
 ```
 ### 7) Train Flybrain population specific
+Similar pipeline to the previous one but this time the shift and the gains parameter are shared across neuron populations. We can define the population based on the neurotransmitter type or the cell type.
 ```bash
 % train_flybrain_pop --help
   Pipeline to train an RNN model constrained on the flybrain connectome.
@@ -241,7 +248,7 @@ Options:
   --n_epochs INTEGER              Number of epochs used
   --roi TEXT                      Region of interest (Flybrain)  [required]
   --subpopulation [cell_fibers|neurotransmitter]
-                                  Subpopulation feature( cell types based or
+                                  Subpopulation feature (cell types based or
                                   neurotransmitter based)
   --activation [tanh_pos|tanh_streched]
                                   Activation function used
@@ -253,11 +260,11 @@ Options:
   --help                          Show this message and exit.
 ```
 ## Installation
-
+All the module management has been done using poetry. Here are the steps to set-up the code
 - Clone the repo
 
 ```bash
-git clone https://github.com/edouardkoehn/WM_Atlas.git
+git clone git@github.com:edouardkoehn/FlyStability.git
 ```
 - Create your virtual env
 ```bash
