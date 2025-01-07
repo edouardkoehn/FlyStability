@@ -44,6 +44,7 @@ exclude = '''
 # Scripts of your module
 [tool.poetry.scripts]
 lyapu_convergence="flybrain.workflows:workflow_lyapunov_convergence.run_convergence_lyapunov"
+lyapu_benchmark="flybrain.workflows:workflow_lyapunov_benchmark.main"
 transition_2_chaos = "flybrain.workflows:workflow_trans2chaos.find_transition_2_chaos"
 spectrum = "flybrain.workflows:workflow_spectrum_characterisation.spectrum_characterization"
 train_rd_model = "flybrain.workflows:workflow_RD_RNN.run_training_RD_RNN"

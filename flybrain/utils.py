@@ -15,7 +15,14 @@ def get_root():
 def construct_Random_Matrix_simple(
     n_neurons=100, coupling=1, showplot=False, seed=None
 ):
-    """Method to construct a random matrix, N(0, g)"""
+    """Method to construct a random matrix, N(0, g)
+    Parameters:   n_neurons(int)
+                coupling(float): synpatic coupling strength
+                showplot(bool): optional
+                seed(int): seeds to generate the matrix
+    Returns:    W(np.array): Weight matrix
+                C(np.array): Connectivity matrix (Binary)
+    """
     if not seed is None:
         np.random.seed(seed)
 
