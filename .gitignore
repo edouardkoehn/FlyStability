@@ -9,6 +9,12 @@ __pycache__/
 
 #Custom strucutre
 notebooks/*
+!notebooks/FINAL_0_spectrum_chart.ipynb
+!notebooks/FINAL_1.1_rd_model_weights.ipynb
+!notebooks/FINAL_1.2_rd_model_activation.ipynb
+!notebooks/FINAL_1.3_rd_model_fixed_paramer.ipynb
+!notebooks/FINAL_2_FlyBrain.ipynb
+
 data/*
 !data/fig/.gitkeep
 !data/model/.gitkeep
