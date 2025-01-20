@@ -1,9 +1,8 @@
-# 🪰  RandomNet 🪰
-This repository contains all the code related to the RandomNet project. This project was part of my master thesis conducted in the [Neural Systems and Machine Learning Lab](https://bouchardlab.lbl.gov/) under the supervision of K. Bouchard.
-
+# 🪰  Neuronal Response As A Learning Substrate For Artificial Neuronal
+Network 🪰
+This repository contains all the code related to the NRM project. This project was part of my master thesis conducted in the [Neural Systems and Machine Learning Lab](https://bouchardlab.lbl.gov/) under the supervision of K. Bouchard.
 [Edouard Koehn](edouard.koehn@berkeley.edu) \
-15.01.2024
-
+20.01.2024
 
 ## Index
 - [Abstract](#Abstract)
@@ -15,7 +14,9 @@ This repository contains all the code related to the RandomNet project. This pro
 - [Workflows](#Workflows)
 
 - [Installation](#Installation)
+
 ## Abstract
+Neural systems are characterized by complex dynamics emerging from billions of interconnected neurons, exhibiting temporal variability and chaotic behavior. While Recurrent Neural Networks (RNNs) have been extensively employed to model such dynamics, they remain limited in their biological plausibility, learning stability, and integration with empirical data. This work introduces a novel framework that extends canonical RNN learning paradigms by incorporating features of biological neural circuits. Using a random RNN architecture, we investigate neuronal response modulation (NRM) as a learning substrate. Our findings demonstrate that NRM, through its influence on the system’s Lyapunov spectrum, enables effective control of network dynamics despite having relatively low parameterization compared to direct synaptic plasticity. Furthermore, we successfully adapt this framework to biologically constrained systems informed by real connectomics data. This approach represents a step toward the development of more brain-like systems, offering biologically grounded insights into neural dynamics and advancing the creation of computational models inspired by the brain.
 
 ## Structure of the code
 This repository is designed to serve as a framework for the RandomNet project and any future related projects. All classes are implemented as abstract classes to ensure reusability in other projects.
